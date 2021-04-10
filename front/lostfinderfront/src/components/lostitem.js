@@ -42,7 +42,8 @@ fetch('http://192.168.43.236:4000/items/lost')
           margin:'auto',
           textAlign:'left',
           backgroundColor:'black',
-          color:'yellow',}}>
+          color:'yellow',
+          marginBottom:'10px',}}>
       <CardContent >
         <Typography  color="textSecondary" style={{fontSize: 14,}} gutterBottom>
           
@@ -54,8 +55,17 @@ fetch('http://192.168.43.236:4000/items/lost')
         <Typography variant="body2" component="p" style={{color:'white',marginBottom:'15px',paddingBottom:'0px'}}>
           {result.description}
         </Typography>
-        <i style={{fontSize:'10px'}}>CLAIMED > DENIED > <a href='#'>SEE REASON</a></i>
+        <button style={{
+  backgroundColor: `black`,
+  color: `yellow`,
+  padding: `14px 20px`,
+  margin: `8px 0`,
+  border: `2px solid yellow`,
+  cursor: `pointer`,
+  width: `100%`,
+}}>I FOUND THIS</button>
       </CardContent>
+
     </Card>
     );
   }); 
@@ -74,6 +84,7 @@ export default function LostItemCard() {
   <div>
 
   {lostItems}
+
 
 
   </div>
