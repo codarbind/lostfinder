@@ -249,7 +249,7 @@ if (!userEmail){
 }
 //!userEmail? (return res.json({message:'bad inputs',status:400,id:2})) : (randomIdentifier = Math.floor(Math.random()*100000));
 
-User.update({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function(err, docs){
+User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function(err, docs){
 		if (docs.nModified === 0)  {
 			console.log('this is the error while fetching '+ err);
 			res.status(200).json({message:'no such account founD:',status:404,id:3,token:null})
@@ -309,6 +309,18 @@ res.json({message:'item reported Successfully',id:'1'});
 
 });
 
+app.get('/items/:type',(req,res)=>{
+
+	let {type} = req.params;
+	console.log(type);
+
+	Item.find({type},(err,docs)=>{
+		res.json(docs);
+		console.log(docs[0]);
+	});
+
+});
+
 
 app.listen(4000, ()=>{ console.log('working at 4000')});
-//app.listen(4000, '0.0.0.0',()=>{ console.log('working at 4000')});
+
