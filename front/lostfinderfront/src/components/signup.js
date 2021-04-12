@@ -100,7 +100,7 @@ var requestOptions = {
   redirect: 'follow'
 };
 
-fetch("http://192.168.43.236:4000/signup", requestOptions)
+fetch(`${process.env.REACT_APP_backEndAPI_URL}/signup`, requestOptions)
   .then(response => response.json())
   .then(result => {
 document.getElementById('0').innerHTML = signupMessages[`${result['id']}`];

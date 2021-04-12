@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const ejs = require('ejs');
 const cors = require('cors');
+require('dotenv').config();
+const {  ObjectId} = require('mongodb');
 
 const db = mongoose.connect('mongodb://localhost:27017/userDetails', {useNewUrlParser: true});
 const Schema = mongoose.Schema;
@@ -25,7 +27,7 @@ const ItemSchema = new Schema({
 	type: String,
 	dateReported: String,
 	reporter: String,
-	status:Object,
+	claims:Object,
 
 });
 
@@ -40,6 +42,13 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static('html'));
 app.use(cors({origin:true,credentials:true}));
+
+function confirmtoken(token){
+	return jwt.verify(token,'TOP_SECRET' ,function(err,verifiedJwt){
+		return verifiedJwt;
+						})
+
+}
 
 
 app.get('/', (req, res)=> {
@@ -220,14 +229,14 @@ app.get('/auth', (req,res)=>{
 	res.render('auth');
 })
 
+
+
 app.post('/confirmtoken',(req,res)=>{
 
 	let {token} = req.body;
-		jwt.verify(token,'TOP_SECRET' ,function(err,verifiedJwt){
-	verifiedJwt ? (res.json({verifiedJwt, auth:true}) ) : (res.json({auth:false})) ;
-				
-						})
-
+		let verifiedJwt = confirmtoken(token);
+		
+		verifiedJwt ? (res.json({verifiedJwt, auth:true}) ) : (res.json({auth:false,verifiedJwt})) ;
 })
 
 app.get('/test',(req,res)=>{
@@ -312,12 +321,49 @@ res.json({message:'item reported Successfully',id:'1'});
 app.get('/items/:type',(req,res)=>{
 
 	let {type} = req.params;
-	console.log(type);
-
+	
 	Item.find({type},(err,docs)=>{
 		res.json(docs);
-		console.log(docs[0]);
+		
 	});
+
+});
+
+app.get('/itemid/:id',(req,res)=>{
+
+	let {id} = req.params;
+	Item.find({'_id': new ObjectId(id)},{name:1,description:1},function(err,docs){
+
+		res.json({item:docs});
+
+	});
+
+});
+
+app.post('/claim',(req,res)=>{
+
+	let {id,token,location,when,description}=req.body;
+	let verifiedJwt =  confirmtoken(token);
+	
+	if(!(id && location && when && description)){
+		return res.json({message:'incomplete inputs',id:'2'});
+	}else if (verifiedJwt){
+
+		let {userEmail} = verifiedJwt;
+	
+		Item.updateOne({_id:new ObjectId(id)},{"$set":{'claims':{[userEmail]:{description,location,when}}}},function(err,docs){
+			if(docs){
+				return res.json({message:'Your claim has been initiated, you\'ll get update via email and dashboard',id:'1'});
+			} else{
+				console.log('err claiming',err);
+				return res.json({message:'that did not get through, try again please',id:'2'})
+			}
+		});
+
+	} else{
+		return res.json({message:'you need to sign in',id:'2'});
+	}
+
 
 });
 

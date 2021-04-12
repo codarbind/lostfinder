@@ -5,6 +5,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import {Link} from 'react-router-dom';
 
 const useStyles = makeStyles({
   root: {
@@ -32,7 +33,7 @@ const useStyles = makeStyles({
 
 let foundItems;
 
-fetch('http://192.168.43.236:4000/items/found')
+fetch(`${process.env.REACT_APP_backEndAPI_URL}/items/found`)
     .then(results=>results.json())
     .then(results=>{
 
@@ -56,7 +57,7 @@ fetch('http://192.168.43.236:4000/items/found')
         <Typography variant="body2" component="p" style={{color:'white',marginBottom:'15px',paddingBottom:'0px'}}>
           {result.description}
         </Typography>
-        <button style={{
+        <Button style={{
   backgroundColor: `black`,
   color: `yellow`,
   padding: `14px 20px`,
@@ -64,7 +65,7 @@ fetch('http://192.168.43.236:4000/items/found')
   border: `2px solid yellow`,
   cursor: `pointer`,
   width: `100%`,
-}}>THIS IS MY ITEM</button>
+}} id={result._id} component={Link} to={{state:{name:result.name,description:result.description},pathname:`/claimitem/${result._id}`}}>THIS IS MY ITEM</Button>
        
       </CardContent>
     </Card>

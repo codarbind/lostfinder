@@ -12,6 +12,7 @@ import Cookies from 'js-cookie';
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
+import Iamtheowner from './components/iamtheowner';
 
 
 
@@ -42,7 +43,7 @@ var requestOptions = {
   redirect: 'follow'
 };
 
-fetch("http://192.168.43.236:4000/confirmtoken", requestOptions)
+fetch(`${process.env.REACT_APP_backEndAPI_URL}/confirmtoken`, requestOptions)
   .then(response => response.json())
   .then(result => {
     let {userEmail, firstName} = result.verifiedJwt;
@@ -84,7 +85,9 @@ fetch("http://192.168.43.236:4000/confirmtoken", requestOptions)
       <Route path='/signup' component={SignUp} />
       <Route path='/pass' component={Pass} />
       <Route path='/resetpassword' component={Resetpassword} />
+      <Route path='/claimitem/:id' component={Iamtheowner}/>
         </BrowserRouter>
+      
       
       
       </div>

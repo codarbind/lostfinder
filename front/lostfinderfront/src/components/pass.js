@@ -89,7 +89,7 @@ var requestOptions = {
   redirect: 'follow'
 };
 
-fetch("http://192.168.43.236:4000/pass/setpassword", requestOptions)
+fetch(`${process.env.REACT_APP_backEndAPI_URL}/pass/setpassword`, requestOptions)
   .then(response => response.json())
   .then(result => {
     console.log(result,result.status);
@@ -131,7 +131,7 @@ function getValue(e){
   setPasswordInputs[name] = value;
 }
 
-          const url = 'http://localhost:4000/pass/'+token;
+          const url = `${process.env.REACT_APP_backEndAPI_URL}/pass/`+token;
             React.useEffect(() =>{
             fetch(url,{method:'get'})
                                .then(res => res.json())

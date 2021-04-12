@@ -5,6 +5,10 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Modal from '@material-ui/core/Modal';
+
+
+
 
 const useStyles = makeStyles({
   root: {
@@ -31,7 +35,12 @@ const useStyles = makeStyles({
 
 let lostItems;
 
-fetch('http://192.168.43.236:4000/items/lost')
+
+export default function LostItemCard() {
+  const classes = useStyles();
+  const bull = <span className={classes.bullet}>•</span>;
+    
+  fetch(`${process.env.REACT_APP_backEndAPI_URL}/items/lost`)
     .then(results=>results.json())
     .then(results=>{
 
@@ -63,7 +72,7 @@ fetch('http://192.168.43.236:4000/items/lost')
   border: `2px solid yellow`,
   cursor: `pointer`,
   width: `100%`,
-}}>I FOUND THIS</button>
+}} id={result._id} >I FOUND THIS</button>
       </CardContent>
 
     </Card>
@@ -75,16 +84,12 @@ fetch('http://192.168.43.236:4000/items/lost')
         console.log(e);
     });
 
-export default function LostItemCard() {
-  const classes = useStyles();
-  const bull = <span className={classes.bullet}>•</span>;
 
 
   return (
   <div>
 
   {lostItems}
-
 
 
   </div>

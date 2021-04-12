@@ -11,6 +11,7 @@ let messageColor ={
 
 
 function getModalStyle() {
+
   const top = 50;
   const left = 50;
 
@@ -23,8 +24,10 @@ function getModalStyle() {
 
 
 export function ReportItem(e){
+
   e.preventDefault();
     var urlencoded = new URLSearchParams();
+
 
     //get input values
     for (var i = 1; i <= 5; i++) {
@@ -51,7 +54,7 @@ var requestOptions = {
   redirect: 'follow'
 };
 
-fetch("http://192.168.43.236:4000/reportitem", requestOptions)
+fetch(`${process.env.REACT_APP_backEndAPI_URL}/reportitem`, requestOptions)
   .then(response => response.json())
   .then(result => {
 document.getElementById('0').innerHTML = result.message;
@@ -109,7 +112,9 @@ export default function ReportFound() {
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = () => {
+
     setOpen(true);
+ 
   };
 
   const handleClose = () => {
@@ -120,6 +125,7 @@ export default function ReportFound() {
     <div style={modalStyle} className={classes.paper}>
       <h3 id="simple-modal-title">REPORT AN ITEM YOU FOUND</h3>
       <p>Thank you for bringing the items, kindly upload the details of the items you found to get it back to the rightful owner.</p>
+      <p style={{color:'maroon'}}> Please keep some details and descriptions to yourself, this will help you to verify the rightful owner, as the person must describe the items in details.</p>
       <form id={'form'}> 
      <div > 
     <label for="itemName"><b>Name of Item</b></label>
