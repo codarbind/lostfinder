@@ -108,8 +108,17 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/claim`, requestOptions)
 
 const Iamtheowner =(props)=>{
 	 const classes = useStyles();
-   let itemId = props.match.params.id;
-   let itemDetails = props.location.state;
+   //let itemId = props.match.params.id;
+   let itemId,itemName,itemDescription;
+   if(!props.location.state){
+   // document.getElementById('item').style.display='none';
+     window.location.replace('/');
+    }else if(props.location.state){
+    itemId = props.location.state.itemId;
+    itemName = props.location.state.itemName;
+    itemDescription = props.location.state.itemDescription;
+ }
+   
 
 	return(
 		<div className={classes.body}>
@@ -122,7 +131,7 @@ const Iamtheowner =(props)=>{
         <form id={'form'}>
 		<h2>Claim This Item</h2>
     <h3 id='message'></h3>
-     <Card style={{
+     <Card id={'item'} style={{
           maxWidth:'70%',
           margin:'auto',
           textAlign:'left',
@@ -134,11 +143,11 @@ const Iamtheowner =(props)=>{
           
         </Typography>
         <Typography variant="h5" id='name' component="h2" style={{marginTop:'-5px'}}>
-          {itemDetails.name}
+          {itemName}
         </Typography>
         
         <Typography variant="body2" id='description' component="p" style={{color:'white',marginBottom:'15px',paddingBottom:'0px'}}>
-          {itemDetails.description}
+          {itemDescription}
         </Typography>
         
        

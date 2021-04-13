@@ -65,7 +65,7 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/items/found`)
   border: `2px solid yellow`,
   cursor: `pointer`,
   width: `100%`,
-}} id={result._id} component={Link} to={{state:{name:result.name,description:result.description},pathname:`/claimitem/${result._id}`}}>THIS IS MY ITEM</Button>
+}} id={result._id} component={Link} to={{state:{itemName:result.name,itemDescription:result.description,itemId:result.id},pathname:`/claimitem`}}>THIS IS MY ITEM</Button>
        
       </CardContent>
     </Card>
