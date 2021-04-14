@@ -38,7 +38,7 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/items/found`)
     .then(results=>{
      
    foundItems =   results.map(result=>{
-//alert(`idtem ${result._id}`);
+
     return (
     <Card style={{minWidth: 275,
           maxWidth:'70%',

@@ -340,7 +340,7 @@ app.get('/itemid/:id',(req,res)=>{
 
 });
 
-app.post('/claim',(req,res)=>{
+app.post('/claimitem',(req,res)=>{
 
 	let {id,token,location,when,description}=req.body;
 	let verifiedJwt =  confirmtoken(token);
@@ -381,6 +381,10 @@ app.post('/claim',(req,res)=>{
 											return res.json({message:'that did not get through, try again please',id:'2'})
 										}
 									});
+
+					//update the reporter about this claim
+
+					//send reporter and claimer mail
 					}	
 				});
 				}
@@ -394,6 +398,63 @@ app.post('/claim',(req,res)=>{
 
 });
 
+
+app.post('/returnitem',(req,res)=>{
+
+	let {id,token,location,when,description}=req.body;
+	let verifiedJwt =  confirmtoken(token);
+	
+	if(!(id && location && when && description)){
+		return res.json({message:'incomplete inputs',id:'2'});
+	}else if (verifiedJwt){
+
+		let {userEmail} = verifiedJwt;
+		
+
+		//confirm if user returning is the one who lost that item
+				Item.find({"$and":[{_id:new ObjectId(id),reporter:{"$eq":userEmail}}]},{userEmail:1},function(err,docs){
+			
+					if(docs.length ==1){
+						
+						return res.json({message:"you cannot return an item you lost",id:'2'});
+
+				} else {
+					//search if user has returned this item earlier
+								//change period to asterik since you cannot deep search with a key with period in its name
+									userEmail = userEmail.replace(/[.]/g,"*"); 
+
+									let claimObject = `claims.${userEmail}`;
+
+					Item.find({"$and":[{_id:new ObjectId(id),[claimObject]:{"$exists":true}}]},function(err,docs){
+		
+					if(docs.length == 1){
+					claimedBefore = true;
+					return res.json({message:"you can only return an item once",id:'2'});
+					}	else{
+					Item.updateOne({_id:new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'whereFound':location,'whereSeen':when,'dateReturned':Date()}}},function(err,docs){
+										if(docs){
+											return res.json({message:'Returning process has been initiated, you\'ll get update via email and dashboard',id:'1'});
+										} else{
+											console.log('err claiming',err);
+											return res.json({message:'that did not get through, try again please',id:'2'})
+										}
+									});
+
+					//update the reporter about this claim
+
+					//send reporter and returner mail
+					}	
+				});
+				}
+
+				});
+
+	} else{
+		return res.json({message:'you need to sign in',id:'2'});
+	}
+
+
+});
 
 app.listen(4000, ()=>{ console.log('working at 4000')});
 

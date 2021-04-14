@@ -87,7 +87,7 @@ var requestOptions = {
   redirect: 'follow'
 };
 
-fetch(`${process.env.REACT_APP_backEndAPI_URL}/claimitem`, requestOptions)
+fetch(`${process.env.REACT_APP_backEndAPI_URL}/returnitem`, requestOptions)
   .then(response => response.json())
   .then(result => {
     
@@ -108,7 +108,7 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/claimitem`, requestOptions)
   }); 
       }
 
-const Iamtheowner =(props)=>{
+const IfoundThis =(props)=>{
 	 const classes = useStyles();
    
    let itemId,itemName,itemDescription;
@@ -133,7 +133,7 @@ const Iamtheowner =(props)=>{
         <div className={classes.signContainer}>
 
         <form id={'form'}>
-		<h2>Claim This Item</h2>
+		<h2>Return This Item</h2>
     <h3 id='message'></h3>
      <Card id={'item'} style={{
           maxWidth:'70%',
@@ -159,15 +159,15 @@ const Iamtheowner =(props)=>{
     </Card>
 		 <div >
     <label for="longDescription"><b>Describe the Item in Details</b></label>
-    <textarea id='1' name='description' placeholder='describe to let the finder know you are the true owner' className={classes.signInput} required></textarea>
+    <textarea id='1' name='description' placeholder='describe to let the owner know it is their item' className={classes.signInput} required></textarea>
 
-    <label for="locations"><b>Locations</b></label>
-    <input type="text" placeholder="List all possible places you could have lost it" id={'2'} name="location" required className={classes.signInput}/>
+    <label for="locations"><b>Location</b></label>
+    <input type="text" placeholder="Where did you find the item" id={'2'} name="location" required className={classes.signInput}/>
     
-    <label for="time"><b>When Last Did You See the Item?</b></label>
+    <label for="time"><b>When Did You Find the Item?</b></label>
     <input type="text" placeholder="date and time" id={'3'} name="when" required className={classes.signInput}/>
     
-    <button type="submit" onClick={(e)=>claim(e,itemId)} className={classes.signButton}>I am the Owner</button>
+    <button type="submit" onClick={(e)=>claim(e,itemId)} className={classes.signButton}>Return to Owner</button>
     
   </div>
 
@@ -179,4 +179,4 @@ const Iamtheowner =(props)=>{
 		)
 }
 
-export default Iamtheowner
+export default IfoundThis

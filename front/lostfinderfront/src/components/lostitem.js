@@ -6,6 +6,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Modal from '@material-ui/core/Modal';
+import {Link} from 'react-router-dom';
 
 
 
@@ -64,7 +65,7 @@ export default function LostItemCard() {
         <Typography variant="body2" component="p" style={{color:'white',marginBottom:'15px',paddingBottom:'0px'}}>
           {result.description}
         </Typography>
-        <button style={{
+        <Button style={{
   backgroundColor: `black`,
   color: `yellow`,
   padding: `14px 20px`,
@@ -72,7 +73,7 @@ export default function LostItemCard() {
   border: `2px solid yellow`,
   cursor: `pointer`,
   width: `100%`,
-}} id={result._id} >I FOUND THIS</button>
+}} id={result._id} component={Link} to={{state:{itemName:result.name,itemDescription:result.description,itemId:result._id},pathname:`/returnitem`}}>I FOUND THIS</Button>
       </CardContent>
 
     </Card>
