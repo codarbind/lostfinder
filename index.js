@@ -350,15 +350,42 @@ app.post('/claim',(req,res)=>{
 	}else if (verifiedJwt){
 
 		let {userEmail} = verifiedJwt;
-	
-		Item.updateOne({_id:new ObjectId(id)},{"$set":{'claims':{[userEmail]:{description,location,when}}}},function(err,docs){
-			if(docs){
-				return res.json({message:'Your claim has been initiated, you\'ll get update via email and dashboard',id:'1'});
-			} else{
-				console.log('err claiming',err);
-				return res.json({message:'that did not get through, try again please',id:'2'})
-			}
-		});
+		
+
+		//confirm if user claiming is the one who reported that item
+				Item.find({"$and":[{_id:new ObjectId(id),reporter:{"$eq":userEmail}}]},{userEmail:1},function(err,docs){
+			
+					if(docs.length ==1){
+						
+						return res.json({message:"you cannot claim an item you reported",id:'2'});
+
+				} else {
+					//search if user has claimed this item earlier
+								//change period to asterik since you cannot deep search with a key with period in its name
+									userEmail = userEmail.replace(/[.]/g,"*"); 
+
+									let claimObject = `claims.${userEmail}`;
+
+					Item.find({"$and":[{_id:new ObjectId(id),[claimObject]:{"$exists":true}}]},function(err,docs){
+		
+				
+					if(docs.length == 1){
+					claimedBefore = true;
+					return res.json({message:"you can only claim an item once",id:'2'});
+					}	else{
+					Item.updateOne({_id:new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'possibleLostLocations':location,'lastSeen':when,'dateClaimed':Date()}}},function(err,docs){
+										if(docs){
+											return res.json({message:'Your claim has been initiated, you\'ll get update via email and dashboard',id:'1'});
+										} else{
+											console.log('err claiming',err);
+											return res.json({message:'that did not get through, try again please',id:'2'})
+										}
+									});
+					}	
+				});
+				}
+
+				});
 
 	} else{
 		return res.json({message:'you need to sign in',id:'2'});
