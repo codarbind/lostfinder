@@ -56,6 +56,7 @@ let messageNumber = 0;
 
 
 function claim(e,itemId){
+  alert(`itemid ${itemId}`);
   e.preventDefault();
   var urlencoded;
     urlencoded = new URLSearchParams();
@@ -96,7 +97,8 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/claim`, requestOptions)
      // setTimeout(()=>{window.location.replace('http://192.168.43.236:3000/')},5000);
     }else{
      
-      console.log('result',result);
+      document.getElementById('message').innerHTML = 'something went wrong';
+      document.getElementById('message').style.color = loginMessagesColor[2];      
 
     }
   })
@@ -108,15 +110,17 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/claim`, requestOptions)
 
 const Iamtheowner =(props)=>{
 	 const classes = useStyles();
-   //let itemId = props.match.params.id;
+   
    let itemId,itemName,itemDescription;
+
    if(!props.location.state){
-   // document.getElementById('item').style.display='none';
+   
      window.location.replace('/');
     }else if(props.location.state){
     itemId = props.location.state.itemId;
     itemName = props.location.state.itemName;
     itemDescription = props.location.state.itemDescription;
+
  }
    
 
