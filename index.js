@@ -18,6 +18,7 @@ userEmail : String,
 userPassword:String,
 randomIdentifier:Number,
 regDate:String,
+claims:Array,
 });
 const ItemSchema = new Schema({
 	name: String,
@@ -90,7 +91,7 @@ app.post('/login', (req, res)=>{
 									
 								} else{
 									res.status(200).json({message:'wrong details',status:400,id:2,token:null})
-									res.status(200).json({message:'something unexpected happened',status:400,id:2,token:null})
+									//res.status(200).json({message:'something unexpected happened',status:400,id:2,token:null})
 								}
 							})
 			
@@ -278,7 +279,6 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 
 app.post('/reportitem',(req,res)=>{
 
-	console.log(req.body);
 	let {itemName, shortD, location, date, type, reporter, status, token} = req.body;
 
 	token ?  (
@@ -286,14 +286,12 @@ app.post('/reportitem',(req,res)=>{
 				jwt.verify(token,'TOP_SECRET' ,function(err,verifiedJwt){
 					
 	verifiedJwt ? reporter = verifiedJwt.userEmail : res.json({message:'you must log in to report items',id:'3'}) ;
-	console.log({itemName, shortD, location, date, type, reporter, status, token});
+	
 					})
 
 		) : res.json({message:'you have to log in to report items',id:'3'});
 
 	const newItem = new Item({
-
-
 		name:itemName,
 		description:shortD,
 		location,
@@ -302,17 +300,22 @@ app.post('/reportitem',(req,res)=>{
 		reporter,
 		status,
 		dateReported: Date(),
-
-
 });
 
+	
+
 	if (!(itemName && shortD && location && date && type && reporter)){ return res.json({message:'bad inputs',id:'2'})};
+
 newItem.save((err, results)=>{
 
 if (err) return console.log('error while submitting new item',err);
 
-console.log('item reported Successfully');
+console.log('item reported Successfully, results >>>',results);
 res.json({message:'item reported Successfully',id:'1'});
+
+User.update({userEmail: results.reporter},{"$push":{claims:results._id}},function(err,results){
+	console.log('reporter profile updated');
+});
 
 });
 
@@ -453,6 +456,38 @@ app.post('/returnitem',(req,res)=>{
 		return res.json({message:'you need to sign in',id:'2'});
 	}
 
+
+});
+
+app.get('/dashboarditems/:token',(req,res)=>{
+
+	let {token} = req.params;
+	console.log('reqp',req.params);
+	let verifiedJwt = confirmtoken(token);
+
+	if(!verifiedJwt){
+		res.json({message:'you need to log in to view dashboard items',status:'2'});
+	}else{
+		let items = [];
+		let {userEmail} = verifiedJwt;
+		User.find({userEmail},{claims:1},function(err,ObjectIds){
+			console.log('objectIds',ObjectIds);
+			let aggregatedSearchObjectIds = [];
+			let generatedItems = ObjectIds[0].claims.map(objectid=>{
+				aggregatedSearchObjectIds.push({'_id':objectid});
+				});
+
+				Item.find({"$or":aggregatedSearchObjectIds},{type:1,name:1,description:1},function(err,item){
+					console.log('item',item);
+					res.json({dashboarditems:item});
+					
+				});
+				
+			
+			
+			
+		});
+	}
 
 });
 
