@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Modal from '@material-ui/core/Modal';
 import {Link} from 'react-router-dom';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 
@@ -40,6 +41,7 @@ let lostItems;
 export default function LostItemCard() {
   const classes = useStyles();
   const bull = <span className={classes.bullet}>•</span>;
+  const [isLoaded,setIsLoaded] = React.useState(false);
     
   fetch(`${process.env.REACT_APP_backEndAPI_URL}/items/lost`)
     .then(results=>results.json())
@@ -79,7 +81,7 @@ export default function LostItemCard() {
     </Card>
     );
   }); 
-  
+  setIsLoaded(true);
     })
     .catch(e=>{
         console.log(e);
@@ -90,7 +92,8 @@ export default function LostItemCard() {
   return (
   <div>
 
-  {lostItems}
+  
+  {(isLoaded && (lostItems))||(!isLoaded && (<CircularProgress id={'loader'} size={100} thickness={20} style={{color:'black'}}/>))}
 
 
   </div>

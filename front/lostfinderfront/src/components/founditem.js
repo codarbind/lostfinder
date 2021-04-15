@@ -6,6 +6,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {Link} from 'react-router-dom';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles({
   root: {
@@ -32,6 +33,13 @@ const useStyles = makeStyles({
 
 
 let foundItems;
+
+
+export default function FoundItemCard() {
+  const classes = useStyles();
+  const bull = <span className={classes.bullet}>•</span>;
+  const [isLoaded,setIsLoaded] = React.useState(false);
+
 
 fetch(`${process.env.REACT_APP_backEndAPI_URL}/items/found`)
     .then(results=>results.json())
@@ -72,21 +80,19 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/items/found`)
     </Card>
     );
   }); 
-  
+  setIsLoaded(true);
     })
     .catch(e=>{
         console.log(e);
     });
 
-export default function FoundItemCard() {
-  const classes = useStyles();
-  const bull = <span className={classes.bullet}>•</span>;
 
 
   return (
   <div>
 
-  {foundItems}
+
+  {(isLoaded && (foundItems))||(!isLoaded && (<CircularProgress id={'loader'} size={100} thickness={20} style={{color:'black'}}/>))}
 
 
   </div>
