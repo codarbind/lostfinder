@@ -84,12 +84,12 @@ export default function FullWidthTabs() {
       
         <TabPanel value={value} index={0} dir={theme.direction}>
         <ReportLost />
-          List of items people are looking for
+          <p>List of items people are looking for</p>
           <LostItemCard />
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
         <ReportFound />
-         List of items we are looking for their owners
+         <p>List of items we are looking for their owners</p>
          <FoundItemCard/>
         </TabPanel>
       

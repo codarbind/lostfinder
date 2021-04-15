@@ -220,7 +220,7 @@ export default  function Header(props) {
                 open={open}
                 onClose={handleClose}
               >
-                <MenuItem id={'dashboardButton'} onClick={handleClose}>Dashboard</MenuItem>
+                <MenuItem id={'dashboardButton'} component={Link} to='/dashboard' onClick={handleClose} >Dashboard</MenuItem>
                 <MenuItem id={'signoutButton'} onClick={handleClose}>Sign Out</MenuItem>
               </Menu>
             </div>
