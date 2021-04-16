@@ -477,8 +477,9 @@ app.get('/dashboarditems/:token',(req,res)=>{
 				aggregatedSearchObjectIds.push({'_id':objectid});
 				});
 
-				Item.find({"$or":aggregatedSearchObjectIds},{type:1,name:1,description:1},function(err,item){
+				Item.find({"$or":aggregatedSearchObjectIds},{type:1,name:1,description:1,claims:1,reporter:1},function(err,item){
 					console.log('item',item);
+
 					res.json({dashboarditems:item});
 					
 				});

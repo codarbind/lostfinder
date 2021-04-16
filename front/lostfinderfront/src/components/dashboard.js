@@ -35,7 +35,8 @@ const useStyles = makeStyles({
 });
 
 
-let lostItems;
+let dashboardItems, claimsOnItems, dashboarditemsArray;
+let positionOfClaim = 0;
 
 
 export default function Dashboard() {
@@ -81,11 +82,45 @@ var requestOptions = {
     .then(results=>{
       console.log(results);
       if(results.status == '2') {
-        lostItems = (<p style={{color:'red'}}>{results.message}</p>);
+        dashboardItems = (<p style={{color:'red'}}>{results.message}</p>);
       }else{
 
-        
-   lostItems =   results.dashboarditems.map(result=>{
+    
+   dashboardItems =   results.dashboarditems.map(result=>{
+
+    if(result.claims){
+
+      dashboarditemsArray = Object.entries(result.claims);
+
+      claimsOnItems = dashboarditemsArray.map(elementsOfDashboardItemsArray=>{
+    
+      positionOfClaim = dashboarditemsArray.indexOf(elementsOfDashboardItemsArray);
+
+      return(
+
+      <span 
+           style={{
+        backgroundColor: `black`,
+        color: `yellow`,
+        border: `2px solid yellow`,
+        borderRadius:'50%',
+        cursor:'pointer',     
+        display: 'inline-flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginLeft:'5px',
+      }}
+
+      id = {result._id+'-'+positionOfClaim }
+        >{positionOfClaim + 1}</span>
+
+      );
+
+    });
+  }else{
+    claimsOnItems = (<span>NiL</span>);
+  }
+    
     
     return (
     <Card style={{minWidth: 275,
@@ -107,15 +142,30 @@ var requestOptions = {
         <Typography variant="body2" component="p" style={{color:'white',marginBottom:'15px',paddingBottom:'0px'}}>
           {result.description}
         </Typography>
-        <Button style={{
-  backgroundColor: `black`,
-  color: `yellow`,
-  padding: `14px 20px`,
-  margin: `8px 0`,
-  border: `2px solid yellow`,
-  cursor: `pointer`,
-  width: `100%`,
-}} id={result._id} component={Link} to={{state:{itemName:result.name,itemDescription:result.description,itemId:result._id},pathname:`/returnitem`}}>I FOUND THIS</Button>
+
+        <div
+      style={{
+        backgroundColor: `black`,
+        color: `yellow`,
+        border: `2px solid yellow`,
+        borderRadius:'5px',
+        padding: '5px 5px',
+        marginBottom:'-10px',
+        display: 'inline-flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+      }}
+
+      id={result._id}
+        >
+        <span>CLAIMS: 
+         
+        {claimsOnItems}
+
+        </span>
+
+        </div>
+       
       </CardContent>
 
     </Card>
@@ -134,7 +184,7 @@ setIsLoaded(true);
   <div>
 
   {heading}
-  {(isLoaded && (lostItems))||(!isLoaded && (<CircularProgress id={'loader'} size={100} thickness={20} style={{color:'black'}}/>))}
+  {(isLoaded && (dashboardItems))||(!isLoaded && (<CircularProgress id={'loader'} size={100} thickness={20} style={{color:'black'}}/>))}
 
 
   </div>
