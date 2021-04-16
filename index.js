@@ -378,7 +378,21 @@ app.post('/claimitem',(req,res)=>{
 					}	else{
 					Item.updateOne({_id:new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'possibleLostLocations':location,'lastSeen':when,'dateClaimed':Date()}}},function(err,docs){
 										if(docs){
-											return res.json({message:'Your claim has been initiated, you\'ll get update via email and dashboard',id:'1'});
+
+											console.log('update item',docs,userEmail);
+											userEmail = userEmail.replace(/[*]/g,".");
+											User.updateOne({userEmail},{"$push":{claims: new ObjectId(id)}},function(err,docs){
+
+												if(docs){
+													console.log('klol',userEmail);
+													res.json({message:'Returning process has been initiated, you\'ll get update via email and dashboard',id:'1'});
+												} else{
+													console.log('err claiming',err, docs);
+													return res.json({message:'that did not get through, try again please',id:'2'})
+												}
+
+											});
+											//return res.json({message:'Your claim has been initiated, you\'ll get update via email and dashboard',id:'1'});
 										} else{
 											console.log('err claiming',err);
 											return res.json({message:'that did not get through, try again please',id:'2'})
@@ -434,9 +448,23 @@ app.post('/returnitem',(req,res)=>{
 					claimedBefore = true;
 					return res.json({message:"you can only return an item once",id:'2'});
 					}	else{
-					Item.updateOne({_id:new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'whereFound':location,'whereSeen':when,'dateReturned':Date()}}},function(err,docs){
+					Item.updateOne({_id: new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'whereFound':location,'whereSeen':when,'dateReturned':Date()}}},function(err,docs){
+										console.log('update item',docs);
 										if(docs){
-											return res.json({message:'Returning process has been initiated, you\'ll get update via email and dashboard',id:'1'});
+											console.log('update item',docs,userEmail);
+											userEmail = userEmail.replace(/[*]/g,".");
+											User.updateOne({userEmail},{"$push":{claims: new ObjectId(id)}},function(err,docs){
+
+												if(docs){
+													console.log('klol',userEmail);
+													res.json({message:'Returning process has been initiated, you\'ll get update via email and dashboard',id:'1'});
+												} else{
+													console.log('err claiming',err, docs);
+													return res.json({message:'that did not get through, try again please',id:'2'})
+												}
+
+											});
+											
 										} else{
 											console.log('err claiming',err);
 											return res.json({message:'that did not get through, try again please',id:'2'})
