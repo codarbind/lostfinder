@@ -70,11 +70,17 @@ export default function Dashboard() {
     theOwner = true;
   }
 
+  let headingIfReporterTrue = (props.details.owner && (<h3 style={{color:'white'}}>Does this describe the item you are looking for, very much?:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>Does this describes the item with you?:</h3>))
+  let headingIfReporterFalse = (props.details.owner && (<h3 style={{color:'white'}}>How you described this item you lost:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>How you described this item you found:</h3>))
+
+
+
   return(
   <span style={{display:'none'}} className={'claimDetails'} id={props.id+'-'+'span'}>
 
-  {(theOwner && (<h3 style={{color:'white'}}>Does this describe the item you are looking for very much?:</h3>)) || (!theOwner && (<h3 style={{color:'white'}}>Does this describes the item with you?:</h3>))}
-  <p><span style={{color:'white'}}>description</span> :{props.claim.itemDescription}</p>
+  {props.details.reporter && (headingIfReporterTrue) || !props.details.reporter && (headingIfReporterFalse)}
+  
+  {(props.details.reporter && (<p><span style={{color:'white'}}>their description</span> :{props.claim.itemDescription}</p>))||(!props.details.reporter && (<p><span style={{color:'white'}}>your description</span> :{props.claim.itemDescription}</p>))}
 
    </span>                       
   )
@@ -114,9 +120,9 @@ var requestOptions = {
 };
     
   fetch(`${process.env.REACT_APP_backEndAPI_URL}/dashboarditems/${retrievedToken}`,requestOptions)
-    .then(results=>results.json())
+    .then(results=>results.json()) 
     .then(results=>{
-      console.log(results);
+      
       if(results.status == '2') {
         dashboardItems = (<p style={{color:'red'}}>{results.message}</p>);
       }else{
@@ -151,7 +157,7 @@ var requestOptions = {
 
       id = {result._id+'-'+positionOfClaim }
         onClick={(e)=>itemClicked(e)}>{positionOfClaim + 1}</span>
-       <ClaimItemClicked id={result._id+'-'+positionOfClaim} claim={result.claims[Object.keys(result.claims)[positionOfClaim]]} owner={result.type.slice(result.type.lastIndexOf('-')+1)} />
+       <ClaimItemClicked id={result._id+'-'+positionOfClaim} claim={result.claims[Object.keys(result.claims)[positionOfClaim]]} details={result.type}  />
         </span>
 
       );
@@ -174,7 +180,7 @@ var requestOptions = {
         <Typography  color="textSecondary" style={{fontSize: 14,}} gutterBottom>
           
         </Typography>
-        <span style={{float:'right'}}><i>{result.type}</i></span>
+        <span style={{float:'right'}}><i>{result.type.type}</i></span>
         <Typography variant="h5" component="h2" style={{marginTop:'-5px'}}>
           {result.name}
         </Typography>

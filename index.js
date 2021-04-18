@@ -507,39 +507,51 @@ app.get('/dashboarditems/:token',(req,res)=>{
 				users who are just 'claimers' of an item should only see their claim on that item 
 			*/
 
-
+				
 				Item.find({"$or":aggregatedSearchObjectIds},{type:1,name:1,description:1,claims:1,reporter:1},function(err,item){
 					let numberOfItems = item.length;
+			
+					let newItemArray = [];
+			
 
 					for (var i = numberOfItems -1; i >= 0; i--) {
-
-							if(userEmail != item[i].reporter){//if current user is not the reporter
+								let {claims,description,name,reporter,type,_id,} = item[i];
+								let newItem = {claims,description,name,reporter,type,_id,};
+								
+							if(userEmail != newItem.reporter){//if current user is not the reporter
 												let userClaim = {}; //
 												userEmail1 = userEmail.replace(/[.]/g,"*");
-												userClaim[userEmail1] = item[i].claims[userEmail1];//pick out only current users claim
-												item[i].claims = userClaim; //then delete/overwrite all other claims
-												var notOwner ={owner: false};
-												var owner = {owner:true};
-												var itemInQuestion = item[i]
-												if(item[i].type == 'lost'){
-														
-														item[i].type ='lost'+'-'+false;
+												userClaim[userEmail1] = newItem.claims[userEmail1];//pick out only current users claim
+												newItem.claims = userClaim; //then delete/overwrite all other claims
+												/*var notOwner ={owner: false};
+												var owner = {owner:true};*/
+												
+												if(newItem.type == 'lost'){
+														var obj = {type:'lost',owner:false,reporter:false};
+														newItem.type =obj;//'lost'+'-'+false;
+														newItemArray.push(newItem);
 										
-													}else if(item[i].type == 'found'){
-														item[i].type ='found'+'-'+true;
+													}else if(newItem.type == 'found'){
+														var obj ={type:'found',owner:true,reporter:false};
+														newItem.type =obj; //'found'+'-'+true;
+														newItemArray.push(newItem);
 													}
 
-												(i == 0)?res.json({dashboarditems:item}):i;
+												(i == 0)?res.json({dashboarditems:newItemArray}):i;
 
 												}else{//you are the reporter
-													if(item[i].type == 'lost'){
-														item[i].type ='lost'+'-'+true;
+													if(newItem.type == 'lost'){
+														var obj = {type:'lost',owner:true,reporter:true};
+														newItem.type =obj//'lost'+'-'+true;
+														newItemArray.push(newItem);
 													
-													}else if(item[i].type == 'found'){
-														item[i].type ='found'+'-'+false;
+													}else if(newItem.type == 'found'){
+														var obj = {type:'found',owner:false,reporter:true};
+														newItem.type =obj//'found'+'-'+false;
+														newItemArray.push(newItem);
 														
 													}
-													(i == 0)?res.json({dashboarditems:item}):i;
+													(i == 0)?res.json({dashboarditems:newItemArray}):i;
 													
 												}
 
