@@ -103,7 +103,7 @@ app.post('/login', (req, res)=>{
 app.post('/signup', (req, res)=>{
 let {firstName, lastName, userEmail} = req.body;
 let userPassword = null;
-console.log(`${userEmail} ${userPassword}`);
+
 
 if (userEmail){
 
@@ -131,7 +131,7 @@ setTimeout(()=>(
   err ? console.log(err):  console.log("Successful deletion");
 })),40*60*1000);//40mins
 });} else{
-	console.log('bad inputs');
+
 	res.json('bad inputs');
 }
 });
@@ -144,12 +144,11 @@ app.get('/pass/:pass',(req,res)=>{
 	var passCheck = User.find({randomIdentifier:req.params.pass})
 					 .then(details =>{
 						details.length === 1
-						? ( console.log('item found, please confirm if your name is '+ details[0].firstName),
-							//res.render('setpassword',{details})
+						? ( 
 							res.status(200).json({message:details, randomIdentifier: req.params.pass, status:200, id:'1'})
 						  )
 														 																	 	 
-						: (console.log('the link must have expired, '),
+						: (
 					 		res.status(200).json({message:'the link must have expired, please use FORGOT PASSWORD.',status:404,id:2})
 					 		
 					 	  )										 		
@@ -160,14 +159,14 @@ app.get('/pass/:pass',(req,res)=>{
 
 app.post('/pass/setpassword',(req,res)=>{
 let {password, userEmail, randomIdentifier} = req.body;
-console.log('userEmail',userEmail);
+
 if (password && userEmail && randomIdentifier){
 
 //encrypt supplied password
 bcrypt.hash(password, 10 , function(err, hash) {
 
  			 password = hash;
- 			 console.log('hash',hash,'password',password);
+ 			
  			 User.updateOne({"$and":[{userEmail, randomIdentifier}]}, {"$set":{userPassword:password, randomIdentifier: null}},{upsert:false}, function(err,doc){
 	console.log('err finding signup user',err);
 	if (err) return res.json({message:'not set'});
@@ -191,7 +190,7 @@ const token = jwt.sign(
 
 
 } else{
-	console.log('bad inputs');
+
 	return res.json('bad inputs');
 }
 });
@@ -200,7 +199,7 @@ const token = jwt.sign(
 app.post('/home',(req,res)=>{
 	let userEmail = ', you are not logged in.';
 	jwt.verify(req.cookies.jwt,'TOP_SECRET' ,function(err,verifiedJwt){
-					console.log(verifiedJwt); 
+				
 			verifiedJwt ? userEmail = verifiedJwt.userEmail : userEmail ;		
 	res.render('home',{userObject:userEmail})				
 					})
@@ -211,7 +210,7 @@ app.get('/home',(req,res)=>{
 	let userEmail = ', you are not logged in.';
 	var auth;
 	jwt.verify(req.cookies.jwt,'TOP_SECRET' ,function(err,verifiedJwt){
-					console.log(verifiedJwt); 
+				
 			verifiedJwt ? (userEmail = verifiedJwt.userEmail, auth = true) : (userEmail, auth = false) ;		
 	//res.render('home',{userObject:userEmail})	
 	let userObject = {userEmail,auth};
@@ -261,12 +260,12 @@ if (!userEmail){
 
 User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function(err, docs){
 		if (docs.nModified === 0)  {
-			console.log('this is the error while fetching '+ err);
+			
 			res.status(200).json({message:'no such account founD:',status:404,id:3,token:null})
 			} else if(docs.nModified ===1) {
-			console.log(`to reset your password, click on >>> http://localhost:3000/pass/${randomIdentifier}`);
+			
 			setTimeout(()=>(
-	User.update({randomIdentifier}, {"$set":{randomIdentifier:null}},{upsert:false}, function (err) {
+	User.updateOne({randomIdentifier}, {"$set":{randomIdentifier:null}},{upsert:false}, function (err) {
   			err ? console.log('error while NULLing randomIdentifier:',err):  console.log("Successful deletion");
 			})),120000);
 			res.status(200).json({message:'A reset link has been sent to the provided email address, please click on it to reset your password', id:1,status:200});
@@ -308,13 +307,13 @@ app.post('/reportitem',(req,res)=>{
 
 newItem.save((err, results)=>{
 
-if (err) return console.log('error while submitting new item',err);
+if (err) { console.log('error while submitting new item',err);}
 
-console.log('item reported Successfully, results >>>',results);
+
 res.json({message:'item reported Successfully',id:'1'});
 
 User.update({userEmail: results.reporter},{"$push":{claims:results._id}},function(err,results){
-	console.log('reporter profile updated');
+	
 });
 
 });
@@ -379,22 +378,21 @@ app.post('/claimitem',(req,res)=>{
 					Item.updateOne({_id:new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'possibleLostLocations':location,'lastSeen':when,'dateClaimed':Date()}}},function(err,docs){
 										if(docs){
 
-											console.log('update item',docs,userEmail);
 											userEmail = userEmail.replace(/[*]/g,".");
 											User.updateOne({userEmail},{"$push":{claims: new ObjectId(id)}},function(err,docs){
 
 												if(docs){
-													console.log('klol',userEmail);
+													
 													res.json({message:'Returning process has been initiated, you\'ll get update via email and dashboard',id:'1'});
 												} else{
-													console.log('err claiming',err, docs);
+													
 													return res.json({message:'that did not get through, try again please',id:'2'})
 												}
 
 											});
 											//return res.json({message:'Your claim has been initiated, you\'ll get update via email and dashboard',id:'1'});
 										} else{
-											console.log('err claiming',err);
+											
 											return res.json({message:'that did not get through, try again please',id:'2'})
 										}
 									});
@@ -448,25 +446,25 @@ app.post('/returnitem',(req,res)=>{
 					claimedBefore = true;
 					return res.json({message:"you can only return an item once",id:'2'});
 					}	else{
-					Item.updateOne({_id: new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'whereFound':location,'whereSeen':when,'dateReturned':Date()}}},function(err,docs){
-										console.log('update item',docs);
+					Item.updateOne({_id: new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'whereFound':location,'whenSeen':when,'dateReturned':Date()}}},function(err,docs){
+									
 										if(docs){
-											console.log('update item',docs,userEmail);
+										
 											userEmail = userEmail.replace(/[*]/g,".");
 											User.updateOne({userEmail},{"$push":{claims: new ObjectId(id)}},function(err,docs){
 
 												if(docs){
-													console.log('klol',userEmail);
+												
 													res.json({message:'Returning process has been initiated, you\'ll get update via email and dashboard',id:'1'});
 												} else{
-													console.log('err claiming',err, docs);
+												
 													return res.json({message:'that did not get through, try again please',id:'2'})
 												}
 
 											});
 											
 										} else{
-											console.log('err claiming',err);
+											
 											return res.json({message:'that did not get through, try again please',id:'2'})
 										}
 									});
@@ -490,7 +488,7 @@ app.post('/returnitem',(req,res)=>{
 app.get('/dashboarditems/:token',(req,res)=>{
 
 	let {token} = req.params;
-	console.log('reqp',req.params);
+
 	let verifiedJwt = confirmtoken(token);
 
 	if(!verifiedJwt){
@@ -498,27 +496,44 @@ app.get('/dashboarditems/:token',(req,res)=>{
 	}else{
 		let items = [];
 		let {userEmail} = verifiedJwt;
-		User.find({userEmail},{claims:1},function(err,ObjectIds){
-			console.log('objectIds',ObjectIds);
+		User.find({userEmail},{claims:1,reporter:1},function(err,ObjectIds){
+			
 			let aggregatedSearchObjectIds = [];
 			let generatedItems = ObjectIds[0].claims.map(objectid=>{
 				aggregatedSearchObjectIds.push({'_id':objectid});
 				});
+			/*
+				only users that reported a particular item should see all claims on the items, in their dashboard,
+				users who are just 'claimers' of an item should only see their claim on that item 
+			*/
+
 
 				Item.find({"$or":aggregatedSearchObjectIds},{type:1,name:1,description:1,claims:1,reporter:1},function(err,item){
-					console.log('item',item);
+					let numberOfItems = item.length;
 
-					res.json({dashboarditems:item});
-					
+					for (var i = numberOfItems -1; i >= 0; i--) {
+
+							if(userEmail != item[i].reporter){//if current user is not the reporter
+												let userClaim = {}; //
+												userEmail1 = userEmail.replace(/[.]/g,"*");
+												userClaim[userEmail1] = item[i].claims[userEmail1];//pick out only current users claim
+												item[i].claims = userClaim; //then delete/overwrite all other claims
+
+												(i == 0)?res.json({dashboarditems:item}):i;
+
+												}else{
+													
+													(i == 0)?res.json({dashboarditems:item}):i;
+													
+												}
+
+											}				
+
+					});
+
 				});
-				
-			
-			
-			
+			}
 		});
-	}
-
-});
 
 app.listen(4000, ()=>{ console.log('working at 4000')});
 

@@ -60,7 +60,7 @@ export default function Dashboard() {
         </Typography>
         <Typography variant="h5" component="h2" style={{marginTop:'-5px'}}>
           <p>welcome to your</p>
-          <h1>DASHBOARD</h1>
+          <h2>DASHBOARD</h2>
         </Typography>
        
       </CardContent>
@@ -90,7 +90,7 @@ var requestOptions = {
 
     if(result.claims){
 
-      dashboarditemsArray = Object.entries(result.claims);
+      dashboarditemsArray = Object.entries(result.claims); //turn the Object to array of arrays
 
       claimsOnItems = dashboarditemsArray.map(elementsOfDashboardItemsArray=>{
     
