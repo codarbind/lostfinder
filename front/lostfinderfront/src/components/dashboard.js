@@ -72,7 +72,7 @@ export default function Dashboard() {
 
   let headingIfReporterTrue = (props.details.owner && (<h3 style={{color:'white'}}>Does this describe the item you are looking for, very much?:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>Does this describes the item with you?:</h3>))
   let headingIfReporterFalse = (props.details.owner && (<h3 style={{color:'white'}}>How you described this item you lost:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>How you described this item you found:</h3>))
-
+  let decisionButtonsForReporters =(<div><Button style={{color:'red'}}>REJECT</Button><Button style={{color:'green'}}>ACCEPT</Button></div>);
 
 
   return(
@@ -81,8 +81,10 @@ export default function Dashboard() {
   {props.details.reporter && (headingIfReporterTrue) || !props.details.reporter && (headingIfReporterFalse)}
   
   {(props.details.reporter && (<p><span style={{color:'white'}}>their description</span> :{props.claim.itemDescription}</p>))||(!props.details.reporter && (<p><span style={{color:'white'}}>your description</span> :{props.claim.itemDescription}</p>))}
+  {(props.details.reporter && (decisionButtonsForReporters))} {(!props.details.reporter && (<span style={{color:'blue'}}><i>awaiting response</i></span>))}
 
    </span>                       
+  
   )
 }
 
