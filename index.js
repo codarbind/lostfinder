@@ -518,11 +518,27 @@ app.get('/dashboarditems/:token',(req,res)=>{
 												userEmail1 = userEmail.replace(/[.]/g,"*");
 												userClaim[userEmail1] = item[i].claims[userEmail1];//pick out only current users claim
 												item[i].claims = userClaim; //then delete/overwrite all other claims
+												var notOwner ={owner: false};
+												var owner = {owner:true};
+												var itemInQuestion = item[i]
+												if(item[i].type == 'lost'){
+														
+														item[i].type ='lost'+'-'+false;
+										
+													}else if(item[i].type == 'found'){
+														item[i].type ='found'+'-'+true;
+													}
 
 												(i == 0)?res.json({dashboarditems:item}):i;
 
-												}else{
+												}else{//you are the reporter
+													if(item[i].type == 'lost'){
+														item[i].type ='lost'+'-'+true;
 													
+													}else if(item[i].type == 'found'){
+														item[i].type ='found'+'-'+false;
+														
+													}
 													(i == 0)?res.json({dashboarditems:item}):i;
 													
 												}
