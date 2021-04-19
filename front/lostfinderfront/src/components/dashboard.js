@@ -61,18 +61,47 @@ export default function Dashboard() {
   const [isLoaded,setIsLoaded] = React.useState(false);
   const [idClicked, setIdClicked] = React.useState('null');
 
-  function ClaimItemClicked(props){
+ function decide(e){
 
-  let theOwner;
-  if(props.owner=='false'){
-   theOwner = false;
-  }else{
-    theOwner = true;
+    let idOfItemToDecideOn = e.slice(0,e.lastIndexOf('-') -2 );
+    let decisionOnItem = e.slice(e.lastIndexOf('-') + 1 );
+    let positionOfToDecideOn = e.slice(e.lastIndexOf('-')-1,e.lastIndexOf('-') );
+    let retrievedToken = Cookies.get('lfjwt');
+    (decisionOnItem =='rejected')?
+    alert(`This cannot be undone if completed.`):
+    alert(`This cannot be undone if completed, and you'll not have access to other claims on this particular item.`);
+
+    let urlencoded = new URLSearchParams();
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+    urlencoded.append('token',retrievedToken);
+    urlencoded.append('decision',decisionOnItem);
+    urlencoded.append('_id',idOfItemToDecideOn);
+    urlencoded.append('position',positionOfToDecideOn);
+    let requestOptions = {
+    method: 'post',
+    headers: myHeaders,
+    body: urlencoded,
+};
+    
+  fetch(`${process.env.REACT_APP_backEndAPI_URL}/decideonitem`,requestOptions)
+    .then(results=>results.json()) 
+    .then(results=>{
+
+      console.log(results);
+    })
+  
+
   }
+ 
+ 
+
+  function ClaimItemClicked(props){
 
   let headingIfReporterTrue = (props.details.owner && (<h3 style={{color:'white'}}>Does this describe the item you are looking for, very much?:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>Does this describes the item with you?:</h3>))
   let headingIfReporterFalse = (props.details.owner && (<h3 style={{color:'white'}}>How you described this item you lost:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>How you described this item you found:</h3>))
-  let decisionButtonsForReporters =(<div><Button style={{color:'red'}}>REJECT</Button><Button style={{color:'green'}}>ACCEPT</Button></div>);
+  let decisionButtonsForReporters =(<div><Button style={{color:'red'}} id={props.id+"-"+"rejected"} onClick={()=>decide(`${props.id}-rejected`)}>REJECT</Button><Button style={{color:'green'}} id={props.id+"-"+"accepted"} onClick={()=>decide(props.id+"-"+"accepted")}>ACCEPT</Button></div>);
+
 
 
   return(
@@ -80,7 +109,7 @@ export default function Dashboard() {
 
   {props.details.reporter && (headingIfReporterTrue) || !props.details.reporter && (headingIfReporterFalse)}
   
-  {(props.details.reporter && (<p><span style={{color:'white'}}>their description</span> :{props.claim.itemDescription}</p>))||(!props.details.reporter && (<p><span style={{color:'white'}}>your description</span> :{props.claim.itemDescription}</p>))}
+  {(props.details.reporter && (<p><span style={{color:'white'}}>their description</span>:<br/>{props.claim.itemDescription}</p>))||(!props.details.reporter && (<p><span style={{color:'white'}}>your description</span>:<br/>{props.claim.itemDescription}</p>))}
   {(props.details.reporter && (decisionButtonsForReporters))} {(!props.details.reporter && (<span style={{color:'blue'}}><i>awaiting response</i></span>))}
 
    </span>                       

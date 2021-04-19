@@ -29,6 +29,7 @@ const ItemSchema = new Schema({
 	dateReported: String,
 	reporter: String,
 	claims:Object,
+	status:String,
 
 });
 
@@ -510,7 +511,7 @@ app.get('/dashboarditems/:token',(req,res)=>{
 				
 				Item.find({"$or":aggregatedSearchObjectIds},{type:1,name:1,description:1,claims:1,reporter:1},function(err,item){
 					let numberOfItems = item.length;
-			
+
 					let newItemArray = [];
 			
 
@@ -562,6 +563,37 @@ app.get('/dashboarditems/:token',(req,res)=>{
 				});
 			}
 		});
+
+app.post('/decideonitem',(req,res)=>{
+let {_id,decision,token,position} = req.body;
+let verifiedJwt = confirmtoken(token);
+let userEmail = verifiedJwt.userEmail;
+Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(err,docs){
+	err?console.log(err):console.log(docs);
+	let numberOfItem = docs.length;
+	if(!err && ( numberOfItem === 1)){
+		let claimsArray = Object.entries(docs[0].claims);
+		let itemToDecideOn = claimsArray[position];
+		let claimerEmail = itemToDecideOn[0];
+		claimerEmail = claimerEmail.replace(/[.]/g,"*");
+		let fieldToUpdate = `claims.${claimerEmail}.status` ;
+		Item.updateOne({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},{"$set":{[fieldToUpdate]:decision,"status":"settled"}},function(err,newDoc){
+			if(!err){
+				console.log('here',newDoc);
+				res.json('we are working on it soon');
+			}else{
+				res.json('we really tried our best');
+			}
+		});
+		
+	} else{
+
+		res.json('that did not go well');
+	}
+});
+
+
+});
 
 app.listen(4000, ()=>{ console.log('working at 4000')});
 
