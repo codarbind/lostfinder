@@ -109,6 +109,7 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/returnitem`, requestOptions)
       }
 
 const IfoundThis =(props)=>{
+  alert('Kindly note that you can only submit details on a particular item once, and you need to log in.');
 	 const classes = useStyles();
    
    let itemId,itemName,itemDescription;

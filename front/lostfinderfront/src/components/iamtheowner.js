@@ -109,6 +109,7 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/claimitem`, requestOptions)
       }
 
 const Iamtheowner =(props)=>{
+  alert('Please note that you can only submit claim on this particular item once, and you need to log in.');
 	 const classes = useStyles();
    
    let itemId,itemName,itemDescription;
