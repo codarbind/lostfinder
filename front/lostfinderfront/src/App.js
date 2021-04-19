@@ -77,7 +77,7 @@ fetch(`${process.env.REACT_APP_backEndAPI_URL}/confirmtoken`, requestOptions)
       {<div style={{marginLeft:'30px',marginRight:'30px', textAlign:'left'}}>
            <Grid container spacing={3}>
         <Grid item xs={12}>
-          {<h1 id={'greet'} style={{marginTop:'90px'}}>Hello,</h1>}
+          {<h1 id={'greet'} style={{marginTop:'90px',marginLeft:'15%'}}>Hello,</h1>}
         </Grid>
         </Grid>
         <Route exact path='/' component={Homebody} />
