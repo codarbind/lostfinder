@@ -55,11 +55,14 @@ function itemClicked(e){
 }
 
 
-export default function Dashboard() {
+export default function Dashboard(props) {
   const classes = useStyles();
   const bull = <span className={classes.bullet}>•</span>;
   const [isLoaded,setIsLoaded] = React.useState(false);
   const [idClicked, setIdClicked] = React.useState('null');
+  var decision;
+
+  console.log('dash',props.dashboardProps);
 
  function decide(e){
 
@@ -87,33 +90,52 @@ export default function Dashboard() {
   fetch(`${process.env.REACT_APP_backEndAPI_URL}/decideonitem`,requestOptions)
     .then(results=>results.json()) 
     .then(results=>{
-
-      console.log(results);
+      decision = results.decision;
+      console.log('deci',decision,results);
     })
-  
-
   }
  
  
 
   function ClaimItemClicked(props){
 
-  let headingIfReporterTrue = (props.details.owner && (<h3 style={{color:'white'}}>Does this describe the item you are looking for, very much?:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>Does this describes the item with you?:</h3>))
-  let headingIfReporterFalse = (props.details.owner && (<h3 style={{color:'white'}}>How you described this item you lost:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>How you described this item you found:</h3>))
+  let headingIfOwnerTrue = (props.details.owner && (<h3 style={{color:'white'}}>Does this describe the item you are looking for, very much?:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>Does this describes the item with you?:</h3>))
+  let headingIfOwnerFalse = (props.details.owner && (<h3 style={{color:'white'}}>How you described this item you lost:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>How you described this item you found:</h3>))
   let decisionButtonsForReporters =(<div><Button style={{color:'red'}} id={props.id+"-"+"rejected"} onClick={()=>decide(`${props.id}-rejected`)}>REJECT</Button><Button style={{color:'green'}} id={props.id+"-"+"accepted"} onClick={()=>decide(props.id+"-"+"accepted")}>ACCEPT</Button></div>);
+  
+      let responseIfDecisionAcceptedForOwnerReporter = (props.details.owner && (props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Congrats. You can contact the finder of your item:{props.owner}</h3></span>));
+      let responseIfDecisionAcceptedForNotOwnerNotReporter = (!props.details.owner && !(props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Superb!! The owner of the item shall get in touch with you. You call also reach them via: {props.reporterOfItem}</h3></span>));
+  let responseIfDecisionAcceptedForOwnerNotReporter = (props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Cheers on finding your item. You can contact the finder of your item on:{props.owner}</h3></span>) );
+  let responseIfDecisionAcceptedForNotOwnerReporter = (!props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>We are grateful. The owner of the item shall get in touch with you. You call also reach them via: {props.reporterOfItem}</h3></span>) );
 
+  let responseIfDecisionRejectedForNotOwnerReporter = (!props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Great, we shall let this user know that the item with you is not theirs. Thank you for your help.</h3></span>) );
+  let responseIfDecisionRejectedForNotOwnerNotReporter = (!props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Marvelous!! We shall let this user know that the item is not yours. Best of luck in finding yours.</h3></span>) );
+  let responseIfDecisionRejectedForOwnerReporter = (props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Awesome Still!! We shall let the the finder of this item know that it is not yours. Best of luck in finding yours.</h3></span>) );
+  let responseIfDecisionRejectedForOwnerNotReporter = (props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Hmmm, the finder thinks the item is not yours. We will keep looking out for yours.</h3></span>) );
+  
 
+  console.log(props.details.owner,props.details.reporter);
 
   return(
   <span style={{display:'none'}} className={'claimDetails'} id={props.id+'-'+'span'}>
 
-  {props.details.reporter && (headingIfReporterTrue) || !props.details.reporter && (headingIfReporterFalse)}
+  {props.details.reporter && (headingIfOwnerTrue) || !props.details.reporter && (headingIfOwnerFalse)}
   
   {(props.details.reporter && (<p><span style={{color:'white'}}>their description</span>:<br/>{props.claim.itemDescription}</p>))||(!props.details.reporter && (<p><span style={{color:'white'}}>your description</span>:<br/>{props.claim.itemDescription}</p>))}
-  {(props.details.reporter && (decisionButtonsForReporters))} {(!props.details.reporter && (<span style={{color:'blue'}}><i>awaiting response</i></span>))}
-
-   </span>                       
+  {(props.details.reporter && !(props.status == 'settled') && (decisionButtonsForReporters))} {(!props.details.reporter && !(props.status == 'settled') &&  (<span style={{color:'blue'}}><i>awaiting response</i></span>))}
   
+  { (props.claim.status == 'accepted') && (responseIfDecisionAcceptedForOwnerReporter)}
+  { (props.claim.status == 'accepted') && (responseIfDecisionAcceptedForNotOwnerNotReporter)}
+  { (props.claim.status == 'accepted') && (responseIfDecisionAcceptedForOwnerNotReporter)}
+  { (props.claim.status == 'accepted') && (responseIfDecisionAcceptedForNotOwnerReporter)}
+
+  { (props.claim.status == 'rejected') && (responseIfDecisionRejectedForNotOwnerReporter)}
+  { (props.claim.status == 'rejected') && (responseIfDecisionRejectedForNotOwnerNotReporter)}
+  { (props.claim.status == 'rejected') && (responseIfDecisionRejectedForOwnerReporter)}
+  { (props.claim.status == 'rejected') && (responseIfDecisionRejectedForOwnerNotReporter)}
+   </span>                       
+ 
+ 
   )
 }
 
@@ -153,19 +175,21 @@ var requestOptions = {
   fetch(`${process.env.REACT_APP_backEndAPI_URL}/dashboarditems/${retrievedToken}`,requestOptions)
     .then(results=>results.json()) 
     .then(results=>{
-      
+        
       if(results.status == '2') {
         dashboardItems = (<p style={{color:'red'}}>{results.message}</p>);
       }else{
 
-    
+console.log('jt',results);
    dashboardItems =   results.dashboarditems.map(result=>{
-
-    if(result.claims){
+       console.log('pok', result);
+       
+    if(!result.status){result.status = 'false'; console.log('uhj',result)}
+       if (result.claims) {
 
       dashboarditemsArray = Object.entries(result.claims); //turn the Object to array of arrays
 
-      claimsOnItems = dashboarditemsArray.map(elementsOfDashboardItemsArray=>{
+        claimsOnItems = dashboarditemsArray.map(elementsOfDashboardItemsArray => {
     
       positionOfClaim = dashboarditemsArray.indexOf(elementsOfDashboardItemsArray);
 
@@ -188,16 +212,13 @@ var requestOptions = {
 
       id = {result._id+'-'+positionOfClaim }
         onClick={(e)=>itemClicked(e)}>{positionOfClaim + 1}</span>
-       <ClaimItemClicked id={result._id+'-'+positionOfClaim} claim={result.claims[Object.keys(result.claims)[positionOfClaim]]} details={result.type}  />
+              <ClaimItemClicked id={result._id + '-' + positionOfClaim} reporterOfItem={result.reporter} owner={Object.keys(result.claims)[positionOfClaim].replace(/[*]/g, ".")} claim={result.claims[Object.keys(result.claims)[positionOfClaim]]} details={result.type} status={result.status}  />
         </span>
-
       );
-
     });
   }else{
     claimsOnItems = (<span>nil</span>);
   }
-    
     
     return (
     <Card style={{minWidth: 275,
@@ -255,14 +276,11 @@ setIsLoaded(true);
         console.log(e);
     });
 
-
-
   return (
   <div>
 
   {heading}
   {(isLoaded && (dashboardItems))||(!isLoaded && (<CircularProgress id={'loader'} size={100} thickness={20} style={{color:'black'}}/>))}
-
 
   </div>
   );

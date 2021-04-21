@@ -30,6 +30,7 @@ const ItemSchema = new Schema({
 	reporter: String,
 	claims:Object,
 	status:String,
+	dateSettled: String,
 
 });
 
@@ -509,15 +510,15 @@ app.get('/dashboarditems/:token',(req,res)=>{
 			*/
 
 				
-				Item.find({"$or":aggregatedSearchObjectIds},{type:1,name:1,description:1,claims:1,reporter:1},function(err,item){
+				Item.find({"$or":aggregatedSearchObjectIds},{type:1,name:1,description:1,claims:1,reporter:1,status:1,dateSettled:1},function(err,item){
 					let numberOfItems = item.length;
 
 					let newItemArray = [];
 			
 
 					for (var i = numberOfItems -1; i >= 0; i--) {
-								let {claims,description,name,reporter,type,_id,} = item[i];
-								let newItem = {claims,description,name,reporter,type,_id,};
+								let {claims,description,name,reporter,type,_id,status,dateSettled} = item[i];
+								let newItem = {claims,description,name,reporter,type,_id,status,dateSettled,userEmail};
 								
 							if(userEmail != newItem.reporter){//if current user is not the reporter
 												let userClaim = {}; //
@@ -568,21 +569,31 @@ app.post('/decideonitem',(req,res)=>{
 let {_id,decision,token,position} = req.body;
 let verifiedJwt = confirmtoken(token);
 let userEmail = verifiedJwt.userEmail;
+let oppositeOfDecision ;
+if (decision == 'rejected'){  oppositeOfDecision = "accepted"}else{ oppositeOfDecision = "rejected"}
 Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(err,docs){
 	err?console.log(err):console.log(docs);
 	let numberOfItem = docs.length;
 	if(!err && ( numberOfItem === 1)){
 		let claimsArray = Object.entries(docs[0].claims);
-		let itemToDecideOn = claimsArray[position];
-		let claimerEmail = itemToDecideOn[0];
-		claimerEmail = claimerEmail.replace(/[.]/g,"*");
+		//get all the email that has claimed this item
+			let emailOfClaimers =[];
+			for (let i = 0; i <= claimsArray.length - 1; i++) {
+			
+				emailOfClaimers.push(claimsArray[i][0].replace(/[.]/g,"*"));
+				
+			}
+		//
+		
+		let claimerEmail = emailOfClaimers[position]; 
+
 		let fieldToUpdate = `claims.${claimerEmail}.status` ;
-		Item.updateOne({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},{"$set":{[fieldToUpdate]:decision,"status":"settled"}},function(err,newDoc){
-			if(!err){
+		Item.updateOne({"$and":[{"_id":{"$eq":_id},"status":{"$ne":"settled"},"reporter":{"$eq":userEmail}}]},{"$set":{[fieldToUpdate]:decision,"status":"settled","dateSettled": Date()}},function(err,newDoc){
+			if(!err && newDoc.nModified === 1){
 				console.log('here',newDoc);
-				res.json('we are working on it soon');
-			}else{
-				res.json('we really tried our best');
+				res.json({decision});
+			}else if(!err && newDoc.nModified === 0){
+				res.json('You had decided on this item');
 			}
 		});
 		
