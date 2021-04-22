@@ -103,8 +103,8 @@ export default function Dashboard(props) {
   let headingIfOwnerFalse = (props.details.owner && (<h3 style={{color:'white'}}>How you described this item you lost:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>How you described this item you found:</h3>))
   let decisionButtonsForReporters =(<div><Button style={{color:'red'}} id={props.id+"-"+"rejected"} onClick={()=>decide(`${props.id}-rejected`)}>REJECT</Button><Button style={{color:'green'}} id={props.id+"-"+"accepted"} onClick={()=>decide(props.id+"-"+"accepted")}>ACCEPT</Button></div>);
   
-      let responseIfDecisionAcceptedForOwnerReporter = (props.details.owner && (props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Congrats. You can contact the finder of your item:{props.owner}</h3></span>));
-      let responseIfDecisionAcceptedForNotOwnerNotReporter = (!props.details.owner && !(props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Superb!! The owner of the item shall get in touch with you. You call also reach them via: {props.reporterOfItem}</h3></span>));
+  let responseIfDecisionAcceptedForOwnerReporter = (props.details.owner && (props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Congrats. You can contact the finder of your item:{props.owner}</h3></span>));
+  let responseIfDecisionAcceptedForNotOwnerNotReporter = (!props.details.owner && !(props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Superb!! The owner of the item shall get in touch with you. You call also reach them via: {props.reporterOfItem}</h3></span>));
   let responseIfDecisionAcceptedForOwnerNotReporter = (props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Cheers on finding your item. You can contact the finder of your item on:{props.owner}</h3></span>) );
   let responseIfDecisionAcceptedForNotOwnerReporter = (!props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>We are grateful. The owner of the item shall get in touch with you. You call also reach them via: {props.reporterOfItem}</h3></span>) );
 
@@ -113,8 +113,15 @@ export default function Dashboard(props) {
   let responseIfDecisionRejectedForOwnerReporter = (props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Awesome Still!! We shall let the the finder of this item know that it is not yours. Best of luck in finding yours.</h3></span>) );
   let responseIfDecisionRejectedForOwnerNotReporter = (props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Hmmm, the finder thinks the item is not yours. We will keep looking out for yours.</h3></span>) );
   
+  let responseIfDecisionRejectedForNotOwnerReporterUnsettled = (!props.details.owner && (props.details.reporter ) && !(props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Respect!! They do not think the item is theirs. Please try and report it on this platform. Let us find the owner together, cheers!</h3></span>) );
+  let responseIfDecisionRejectedForNotOwnerNotReporterUnsettled = (!props.details.owner && !(props.details.reporter ) && !(props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>We are grateful!! However, the other user do not think the item with you is theirs. Kindly report this item found, let us find the rightful owner.</h3></span>) );
+  let responseIfDecisionRejectedForOwnerReporterUnsettled = (props.details.owner && (props.details.reporter ) && !(props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Lets keep looking... We have updated the other user that that is not your item.</h3></span>) );
+  let responseIfDecisionRejectedForOwnerNotReporterUnsettled = (props.details.owner && !(props.details.reporter ) && !(props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Hmmm, the finder thinks the item is not yours. We will keep looking out for yours.</h3></span>) );
+  
 
-  console.log(props.details.owner,props.details.reporter);
+
+  console.log('stat',props.claim.status);
+
 
   return(
   <span style={{display:'none'}} className={'claimDetails'} id={props.id+'-'+'span'}>
@@ -122,7 +129,15 @@ export default function Dashboard(props) {
   {props.details.reporter && (headingIfOwnerTrue) || !props.details.reporter && (headingIfOwnerFalse)}
   
   {(props.details.reporter && (<p><span style={{color:'white'}}>their description</span>:<br/>{props.claim.itemDescription}</p>))||(!props.details.reporter && (<p><span style={{color:'white'}}>your description</span>:<br/>{props.claim.itemDescription}</p>))}
-  {(props.details.reporter && !(props.status == 'settled') && (decisionButtonsForReporters))} {(!props.details.reporter && !(props.status == 'settled') &&  (<span style={{color:'blue'}}><i>awaiting response</i></span>))}
+  
+  {!(props.claim.status == 'rejected')  && (props.details.reporter && !(props.status == 'settled') && (decisionButtonsForReporters))}
+  {!(props.claim.status == 'rejected') && (!props.details.reporter && !(props.status == 'settled') &&  (<span style={{color:'blue'}}><i>awaiting response</i></span>))}
+
+  {(props.claim.status == 'rejected') && props.details.owner  && (props.details.reporter && !(props.status == 'settled') && (responseIfDecisionRejectedForOwnerReporterUnsettled))}
+  {(props.claim.status == 'rejected') && props.details.owner && (!props.details.reporter && !(props.status == 'settled') &&  (responseIfDecisionRejectedForOwnerNotReporterUnsettled))}
+  {(props.claim.status == 'rejected') && !props.details.owner  && (props.details.reporter && !(props.status == 'settled') && (responseIfDecisionRejectedForNotOwnerReporterUnsettled))}
+  {(props.claim.status == 'rejected') && !props.details.owner && (!props.details.reporter && !(props.status == 'settled') &&  (responseIfDecisionRejectedForNotOwnerNotReporterUnsettled))}
+
   
   { (props.claim.status == 'accepted') && (responseIfDecisionAcceptedForOwnerReporter)}
   { (props.claim.status == 'accepted') && (responseIfDecisionAcceptedForNotOwnerNotReporter)}

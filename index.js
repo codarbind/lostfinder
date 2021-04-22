@@ -570,7 +570,13 @@ let {_id,decision,token,position} = req.body;
 let verifiedJwt = confirmtoken(token);
 let userEmail = verifiedJwt.userEmail;
 let oppositeOfDecision ;
-if (decision == 'rejected'){  oppositeOfDecision = "accepted"}else{ oppositeOfDecision = "rejected"}
+if (decision == 'rejected'){ 
+ oppositeOfDecision = "accepted"; 
+ var newStatusOfItem = 'notSettled'
+}else{ 
+ 	oppositeOfDecision = "rejected"; 
+ 	var newStatusOfItem = 'settled'}
+
 Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(err,docs){
 	err?console.log(err):console.log(docs);
 	let numberOfItem = docs.length;
@@ -587,19 +593,20 @@ Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(e
 		
 		let claimerEmail = emailOfClaimers[position]; 
 
-		let fieldToUpdate = `claims.${claimerEmail}.status` ;
-		Item.updateOne({"$and":[{"_id":{"$eq":_id},"status":{"$ne":"settled"},"reporter":{"$eq":userEmail}}]},{"$set":{[fieldToUpdate]:decision,"status":"settled","dateSettled": Date()}},function(err,newDoc){
+		let decisionFieldToUpdate = `claims.${claimerEmail}.status` ;
+
+		Item.updateOne({"$and":[{"_id":{"$eq":_id},"status":{"$ne":"settled"},"reporter":{"$eq":userEmail}}]},{"$set":{[decisionFieldToUpdate]:decision,"status":newStatusOfItem}},function(err,newDoc){
 			if(!err && newDoc.nModified === 1){
 				console.log('here',newDoc);
-				res.json({decision});
+				res.json({message: 	`Claim ${decision} cuccessfully`});
 			}else if(!err && newDoc.nModified === 0){
-				res.json('You had decided on this item');
+				res.json({message:'Failed! \n You had decided on this item. \n Or the item has been settled in another claim instance.'});
 			}
 		});
 		
 	} else{
 
-		res.json('that did not go well');
+		res.json({message:'that did not go well'});
 	}
 });
 
