@@ -62,12 +62,12 @@ export default function Dashboard(props) {
   const [idClicked, setIdClicked] = React.useState('null');
   var decision;
 
-  console.log('dash',props.dashboardProps);
-
  function decide(e){
 
     let idOfItemToDecideOn = e.slice(0,e.lastIndexOf('-') -2 );
     let decisionOnItem = e.slice(e.lastIndexOf('-') + 1 );
+    let status;
+    if(decisionOnItem == 'accepted'){status = 'settled'}else{status = 'unSettled'}
     let positionOfToDecideOn = e.slice(e.lastIndexOf('-')-1,e.lastIndexOf('-') );
     let retrievedToken = Cookies.get('lfjwt');
     if(decisionOnItem =='rejected'){
@@ -84,6 +84,7 @@ export default function Dashboard(props) {
     urlencoded.append('decision',decisionOnItem);
     urlencoded.append('_id',idOfItemToDecideOn);
     urlencoded.append('position',positionOfToDecideOn);
+    urlencoded.append('status',status);
     let requestOptions = {
     method: 'post',
     headers: myHeaders,
@@ -94,7 +95,7 @@ export default function Dashboard(props) {
     .then(results=>results.json()) 
     .then(results=>{
       alert(results.message);
-      console.log('deci',results.message);
+      console.log('deci',results,results.message);
       window.location.reload();
     })
   }
@@ -108,8 +109,8 @@ export default function Dashboard(props) {
   let decisionButtonsForReporters =(<div><Button style={{color:'red'}} id={props.id+"-"+"rejected"} onClick={()=>decide(`${props.id}-rejected`)}>REJECT</Button><Button style={{color:'green'}} id={props.id+"-"+"accepted"} onClick={()=>decide(props.id+"-"+"accepted")}>ACCEPT</Button><hr/></div>);
   
   let responseIfDecisionAcceptedForOwnerReporter = (props.details.owner && (props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Congrats. You can contact the finder of your item:{props.owner}</h3></span>));
-  let responseIfDecisionAcceptedForNotOwnerNotReporter = (!props.details.owner && !(props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Superb!! The owner of the item shall get in touch with you. You call also reach them via: {props.reporterOfItem}</h3></span>));
-  let responseIfDecisionAcceptedForOwnerNotReporter = (props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Cheers on finding your item. You can contact the finder of your item on:{props.owner}</h3></span>) );
+  let responseIfDecisionAcceptedForNotOwnerNotReporter = (!props.details.owner && !(props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Superb!! The owner of the item shall get in touch with you via: {props.reporterOfItem}</h3></span>));
+  let responseIfDecisionAcceptedForOwnerNotReporter = (props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Cheers on finding your item. Contact the finder of your item on:{props.owner}</h3></span>) );
   let responseIfDecisionAcceptedForNotOwnerReporter = (!props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>We are grateful. The owner of the item shall get in touch with you. You call also reach them via: {props.reporterOfItem}</h3></span>) );
 
   let responseIfDecisionRejectedForNotOwnerReporter = (!props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Great, we shall let this user know that the item with you is not theirs. Thank you for your help.</h3></span>) );

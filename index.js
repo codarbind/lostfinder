@@ -566,16 +566,10 @@ app.get('/dashboarditems/:token',(req,res)=>{
 		});
 
 app.post('/decideonitem',(req,res)=>{
-let {_id,decision,token,position} = req.body;
+let {_id,decision,token,position,status} = req.body;
+console.log('ssta',status);
 let verifiedJwt = confirmtoken(token);
 let userEmail = verifiedJwt.userEmail;
-let oppositeOfDecision ;
-if (decision == 'rejected'){ 
- oppositeOfDecision = "accepted"; 
- var newStatusOfItem = 'notSettled'
-}else{ 
- 	oppositeOfDecision = "rejected"; 
- 	var newStatusOfItem = 'settled'}
 
 Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(err,docs){
 	err?console.log(err):console.log(docs);
@@ -595,10 +589,10 @@ Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(e
 
 		let decisionFieldToUpdate = `claims.${claimerEmail}.status` ;
 
-		Item.updateOne({"$and":[{"_id":{"$eq":_id},"status":{"$ne":"settled"},"reporter":{"$eq":userEmail}}]},{"$set":{[decisionFieldToUpdate]:decision,"status":newStatusOfItem}},function(err,newDoc){
+		Item.updateOne({"$and":[{"_id":{"$eq":_id},"status":{"$ne":"settled"},"reporter":{"$eq":userEmail}}]},{"$set":{[decisionFieldToUpdate]:decision,"status":status,"statusDate":Date()}},function(err,newDoc){
 			if(!err && newDoc.nModified === 1){
 				console.log('here',newDoc);
-				res.json({message: 	`Claim ${decision} cuccessfully`});
+				res.json({message: 	`Claim ${decision} successfully`});
 			}else if(!err && newDoc.nModified === 0){
 				res.json({message:'Failed! \n You had decided on this item. \n Or the item has been settled in another claim instance.'});
 			}
