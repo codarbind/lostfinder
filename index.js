@@ -588,8 +588,9 @@ Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(e
 		let claimerEmail = emailOfClaimers[position]; 
 
 		let decisionFieldToUpdate = `claims.${claimerEmail}.status` ;
+		let statusDate = `claims.${claimerEmail}.statusDate` ;
 
-		Item.updateOne({"$and":[{"_id":{"$eq":_id},"status":{"$ne":"settled"},"reporter":{"$eq":userEmail}}]},{"$set":{[decisionFieldToUpdate]:decision,"status":status,"statusDate":Date()}},function(err,newDoc){
+		Item.updateOne({"$and":[{"_id":{"$eq":_id},"status":{"$ne":"settled"},"reporter":{"$eq":userEmail}}]},{"$set":{[decisionFieldToUpdate]:decision,"status":status,dateSettled: Date(),[statusDate]:Date()}},function(err,newDoc){
 			if(!err && newDoc.nModified === 1){
 				console.log('here',newDoc);
 				res.json({message: 	`Claim ${decision} successfully`});
