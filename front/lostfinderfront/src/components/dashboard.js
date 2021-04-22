@@ -70,10 +70,13 @@ export default function Dashboard(props) {
     let decisionOnItem = e.slice(e.lastIndexOf('-') + 1 );
     let positionOfToDecideOn = e.slice(e.lastIndexOf('-')-1,e.lastIndexOf('-') );
     let retrievedToken = Cookies.get('lfjwt');
-    (decisionOnItem =='rejected')?
-    alert(`This cannot be undone if completed.`):
-    alert(`This cannot be undone if completed, and you'll not have access to other claims on this particular item.`);
+    if(decisionOnItem =='rejected'){
+     var proceed =  window.confirm(`CONTINUE with REJECT?\n\nThis cannot be undone if completed.`)
+    }else{
+      var proceed =  window.confirm(`PROCEED with ACCEPT?\n\nThis cannot be undone if completed, and you'll not have access to other claims on this particular item.`);
+    }
 
+    if (!proceed ){return  alert('aborted')}
     let urlencoded = new URLSearchParams();
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
@@ -90,8 +93,9 @@ export default function Dashboard(props) {
   fetch(`${process.env.REACT_APP_backEndAPI_URL}/decideonitem`,requestOptions)
     .then(results=>results.json()) 
     .then(results=>{
-      decision = results.decision;
-      console.log('deci',decision,results);
+      alert(results.message);
+      console.log('deci',results.message);
+      window.location.reload();
     })
   }
  
@@ -101,7 +105,7 @@ export default function Dashboard(props) {
 
   let headingIfOwnerTrue = (props.details.owner && (<h3 style={{color:'white'}}>Does this describe the item you are looking for, very much?:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>Does this describes the item with you?:</h3>))
   let headingIfOwnerFalse = (props.details.owner && (<h3 style={{color:'white'}}>How you described this item you lost:</h3>)) || (!props.details.owner && (<h3 style={{color:'white'}}>How you described this item you found:</h3>))
-  let decisionButtonsForReporters =(<div><Button style={{color:'red'}} id={props.id+"-"+"rejected"} onClick={()=>decide(`${props.id}-rejected`)}>REJECT</Button><Button style={{color:'green'}} id={props.id+"-"+"accepted"} onClick={()=>decide(props.id+"-"+"accepted")}>ACCEPT</Button></div>);
+  let decisionButtonsForReporters =(<div><Button style={{color:'red'}} id={props.id+"-"+"rejected"} onClick={()=>decide(`${props.id}-rejected`)}>REJECT</Button><Button style={{color:'green'}} id={props.id+"-"+"accepted"} onClick={()=>decide(props.id+"-"+"accepted")}>ACCEPT</Button><hr/></div>);
   
   let responseIfDecisionAcceptedForOwnerReporter = (props.details.owner && (props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Congrats. You can contact the finder of your item:{props.owner}</h3></span>));
   let responseIfDecisionAcceptedForNotOwnerNotReporter = (!props.details.owner && !(props.details.reporter) && (props.status == 'settled') && (<span><hr /><h3 style={{ color: 'white' }}>Superb!! The owner of the item shall get in touch with you. You call also reach them via: {props.reporterOfItem}</h3></span>));
@@ -113,6 +117,11 @@ export default function Dashboard(props) {
   let responseIfDecisionRejectedForOwnerReporter = (props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Awesome Still!! We shall let the the finder of this item know that it is not yours. Best of luck in finding yours.</h3></span>) );
   let responseIfDecisionRejectedForOwnerNotReporter = (props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Hmmm, the finder thinks the item is not yours. We will keep looking out for yours.</h3></span>) );
   
+  let responseIfDecisionRejectedIndirectForNotOwnerReporter = (!props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>The user did not accept this item with you as not theirs. Kindly report this item found to enable rightful owner find it. Thank you for your help.</h3></span>) );
+  let responseIfDecisionRejectedIndirectForNotOwnerNotReporter = (!props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Nothing spoil!! The owner of the report has found their true item. Please report this item you found to enable the owner find it. We appreciate your support.</h3></span>) );
+  let responseIfDecisionRejectedIndirectForOwnerReporter = (props.details.owner && (props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Wow!! We shall let the the finder of this item know that it is not yours. We are happy you have found yours.</h3></span>) );
+  let responseIfDecisionRejectedIndirectForOwnerNotReporter = (props.details.owner && !(props.details.reporter ) && (props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Ermmm, it seems your description did not match the item, as the item has been returned to someone else. Kindly report your item missing. Let's find it.</h3></span>) );
+
   let responseIfDecisionRejectedForNotOwnerReporterUnsettled = (!props.details.owner && (props.details.reporter ) && !(props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Respect!! They do not think the item is theirs. Please try and report it on this platform. Let us find the owner together, cheers!</h3></span>) );
   let responseIfDecisionRejectedForNotOwnerNotReporterUnsettled = (!props.details.owner && !(props.details.reporter ) && !(props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>We are grateful!! However, the other user do not think the item with you is theirs. Kindly report this item found, let us find the rightful owner.</h3></span>) );
   let responseIfDecisionRejectedForOwnerReporterUnsettled = (props.details.owner && (props.details.reporter ) && !(props.status == 'settled') && (<span><hr/><h3 style={{color:'white'}}>Lets keep looking... We have updated the other user that that is not your item.</h3></span>) );
@@ -148,6 +157,12 @@ export default function Dashboard(props) {
   { (props.claim.status == 'rejected') && (responseIfDecisionRejectedForNotOwnerNotReporter)}
   { (props.claim.status == 'rejected') && (responseIfDecisionRejectedForOwnerReporter)}
   { (props.claim.status == 'rejected') && (responseIfDecisionRejectedForOwnerNotReporter)}
+
+  { (props.claim.status == undefined) && (responseIfDecisionRejectedIndirectForNotOwnerReporter)}
+  { (props.claim.status == undefined) && (responseIfDecisionRejectedIndirectForNotOwnerNotReporter)}
+  { (props.claim.status == undefined) && (responseIfDecisionRejectedIndirectForOwnerReporter)}
+  { (props.claim.status == undefined) && (responseIfDecisionRejectedIndirectForOwnerNotReporter)}
+
    </span>                       
  
  
