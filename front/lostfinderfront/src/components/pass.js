@@ -151,6 +151,7 @@ function getValue(e){
                                    let randomIdentifier = result.message[0].randomIdentifier;
                                    document.getElementById('1').value = userEmail;
                                    document.getElementById('2').value = randomIdentifier;
+                                   document.getElementById('2').style.display = 'none'
                                      }
                                  },
                                  (error) => {console.log('this is the error ',error);}
@@ -175,7 +176,7 @@ function getValue(e){
      
     <label for="userEmail"><b>Email Address</b></label>
     <input type="email" placeholder="your email address" id='1' name="userEmail" required className={classes.signInput} readOnly/> 
-    <input type="text" id='2' name="randomIdentifier" required className={classes.signInput} hidden/>
+    <input type="text" id='2' name="randomIdentifier" className={classes.signInput} hidden/>
     <label for="password"><b>Password</b></label>
     <input type="password" placeholder="enter desire password" id='3' name="password" required className={classes.signInput} onChange={getValue}/>
     <button type="submit" id='4' className={classes.signButton} onClick={setPassword}>Set Password</button>
