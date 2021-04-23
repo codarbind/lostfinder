@@ -8,6 +8,9 @@ const ejs = require('ejs');
 const cors = require('cors');
 require('dotenv').config();
 const {  ObjectId} = require('mongodb');
+const axios = require('axios');
+const nodemailer = require('nodemailer');
+const mail = require('./mailsender')
 
 const db = mongoose.connect('mongodb://localhost:27017/userDetails', {useNewUrlParser: true});
 const Schema = mongoose.Schema;
@@ -16,7 +19,7 @@ firstName: String,
 lastName: String,
 userEmail : String,
 userPassword:String,
-randomIdentifier:Number,
+randomIdentifier:String,
 regDate:String,
 claims:Array,
 });
@@ -46,12 +49,47 @@ app.use(cookieParser());
 app.use(express.static('html'));
 app.use(cors({origin:true,credentials:true}));
 
+var toMail = 'adekolaabdwahababisoye@gmail.com';
+var mailSubject = 'Welcome to Lostfinder';
+var mailBody = 'thank you for signing up';
+filePath = undefined;
+
+mail.mailsender(toMail,mailSubject,mailBody,filePath);
+
 function confirmtoken(token){
 	return jwt.verify(token,'TOP_SECRET' ,function(err,verifiedJwt){
 		return verifiedJwt;
 						})
 
 }
+
+
+function confirmEmail(email){
+
+	return axios.get(`https://emailvalidation.abstractapi.com/v1/?api_key=0a5c95d6191549208ecf59363cf28c61&email=${email}`)
+    .then(response => {
+        console.log(response,response.data.is_disposable_email.value);
+        return response.data.is_disposable_email.value;
+    })
+    .catch(error => {
+        console.log(error);
+    });
+}
+
+
+function generateRandomIdentifier(){
+	let randomNumber = Math.floor(Math.random()*100000);
+
+	//generate jwt for the randomIdentifier
+	jwtisedRandomNumber = jwt.sign(
+								{ randomNumber}, 
+								'TOP_SECRET',
+								{expiresIn: 5*24*60*60}//5days
+								);
+//slice out the encoded payload
+return jwtisedRandomNumber.slice(jwtisedRandomNumber.indexOf('.') +1,jwtisedRandomNumber.lastIndexOf('.'))
+}
+
 
 
 app.get('/', (req, res)=> {
@@ -106,13 +144,20 @@ app.post('/signup', (req, res)=>{
 let {firstName, lastName, userEmail} = req.body;
 let userPassword = null;
 
+let isDisposable = confirmEmail(userEmail);
+console.log('isDisposable', isDisposable); 
 
-if (userEmail){
+
+	if (userEmail ){
 
 User.find({'userEmail': userEmail}, 'userPassword', function(err, docs){
 
 if(docs[0]) return res.status(409).json({status:409,id:3,message:'user email exist'});
-let randomIdentifier = Math.floor(Math.random()*100000);
+
+let randomIdentifier = generateRandomIdentifier();
+
+
+
 const newUser = new User({
 
 	firstName,
@@ -134,7 +179,7 @@ setTimeout(()=>(
 })),40*60*1000);//40mins
 });} else{
 
-	res.json('bad inputs');
+	res.json({message:'incomplete inputs',id:2});
 }
 });
 
@@ -193,7 +238,7 @@ const token = jwt.sign(
 
 } else{
 
-	return res.json('bad inputs');
+	return res.json({message:'bad inputs',id:2});
 }
 });
 
@@ -256,7 +301,7 @@ let randomIdentifier;
 if (!userEmail){
 	return res.json({message:'bad inputs',status:400,id:2})
 }else{
-	randomIdentifier = Math.floor(Math.random()*100000)
+	randomIdentifier = generateRandomIdentifier(); //Math.floor(Math.random()*100000)
 }
 //!userEmail? (return res.json({message:'bad inputs',status:400,id:2})) : (randomIdentifier = Math.floor(Math.random()*100000));
 
@@ -305,7 +350,7 @@ app.post('/reportitem',(req,res)=>{
 
 	
 
-	if (!(itemName && shortD && location && date && type && reporter)){ return res.json({message:'bad inputs',id:'2'})};
+	if (!(itemName && shortD && location && date && type && reporter)){ return res.json({message:'incomplete inputs',id:'2'})};
 
 newItem.save((err, results)=>{
 
