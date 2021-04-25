@@ -12,7 +12,7 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const mail = require('./mailsender')
 
-const db = mongoose.connect('mongodb+srv://lostfinder:0Motherm0@lostfindercluster.jjhmx.mongodb.net/lostfinderDB?retryWrites=true&w=majority', {useNewUrlParser: true});
+const db = mongoose.connect('/lostfinderDB?retryWrites=true&w=majority', {useNewUrlParser: true});
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({
 firstName: String,
