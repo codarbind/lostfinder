@@ -103,8 +103,8 @@ var requestOptions = {
 fetch(`${process.env.REACT_APP_backEndAPI_URL}/signup`, requestOptions)
   .then(response => response.json())
   .then(result => {
-document.getElementById('0').innerHTML = signupMessages[`${result['id']}`];
-document.getElementById('0').style.color = signupMessagesColor[`${result['id']}`];
+  document.getElementById('0').innerHTML    =    signupMessages[`${result['id']}`];
+  document.getElementById('0').style.color  =  signupMessagesColor[`${result['id']}`];
   })
   .catch(error =>{ return error }); 
       }

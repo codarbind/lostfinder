@@ -82,7 +82,7 @@ export default function FullWidthTabs() {
         </Tabs>
       </AppBar>
       
-        <TabPanel value={value} index={0} dir={theme.direction}>
+        <TabPanel  value={value} index={0} dir={theme.direction}>
         <ReportLost />
           <p>List of items people are looking for</p>
           <LostItemCard />

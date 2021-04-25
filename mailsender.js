@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
-const mailsender = (toMail,mailSubject,mailBody,filePath)=> {
-
+const mailsender = (messageParams)=> {
+let {to,subject,mailBody,htmlBody,filePath} = messageParams;
 // Instantiate the SMTP server
   const smtpTrans = nodemailer.createTransport({
     
@@ -16,9 +16,10 @@ const mailsender = (toMail,mailSubject,mailBody,filePath)=> {
   // Specify what the email will look like
   const mailOpts = {
     from: 'Lostfinder <mailhouse247@zohomail.com>', 
-    to: toMail,
-    subject: mailSubject ,
+    to: to,
+    subject: subject ,
     text: mailBody,// fields.mailbody,
+    html:htmlBody,
     attachments: [
           {   // filename and content type is derived from path
                   path: filePath,

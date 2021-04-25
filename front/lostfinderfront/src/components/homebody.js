@@ -79,7 +79,9 @@ body:{
 	textAlign:'center',
 	margin: 'auto',
   	width: '100%',
-  	padding: '10px',
+
+  	
+
 
 },
   padding: {

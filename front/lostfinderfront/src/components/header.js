@@ -61,7 +61,8 @@ const useStyles = makeStyles((theme) => ({
 
     paper: {
     background: "black",
-    color:"yellow"
+    color:"yellow",
+    
   },
 
   yellowFont:{
@@ -177,13 +178,14 @@ export default  function Header(props) {
     e.preventDefault();
 }
 
+
   return (
 
  
     <header>
       <AppBar position="static" className={classes.header}>
         <Toolbar>
-          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={toggleDrawer('left', true)} >
+          <IconButton edge="start"  className={classes.menuButton} color="inherit" aria-label="menu" onClick={toggleDrawer('left', true)} >
             <MenuIcon />
             
           </IconButton>
@@ -208,14 +210,16 @@ export default  function Header(props) {
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
+                getContentAnchorEl={null}
                 anchorOrigin={{
                   vertical: 'top',
-                  horizontal: 'right',
+                  horizontal: 'left',
                 }}
+              
                 keepMounted
                 transformOrigin={{
                   vertical: 'top',
-                  horizontal: 'right',
+                  horizontal: 'left',
                 }}
                 open={open}
                 onClose={handleClose}
