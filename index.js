@@ -13,7 +13,7 @@ const nodemailer = require('nodemailer');
 const mail = require('./mailsender')
 
 
-const db = mongoose.connect('/lostfinderDB?retryWrites=true&w=majority', {useNewUrlParser: true});
+const db = mongoose.connect(process.env.LOSTFINDER_MONGO_DB, {useNewUrlParser: true});
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({
 firstName: String,
