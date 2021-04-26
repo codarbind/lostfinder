@@ -166,7 +166,7 @@ const newUser = new User({
 });
 newUser.save((err, results)=>{
 	if (err) return console.log('this is the error ' + err);
-	console.log('ytr',results);
+
 	if(results){
 			let mailDetails = {
 			to:results.userEmail,
@@ -179,10 +179,10 @@ newUser.save((err, results)=>{
 			<p>Thank you</p>`,
 			filePath:undefined,
 		}
-		console.log('maild',mailDetails);
+
 		mail.mailsender(mailDetails);
 	}
-	console.log('One more step to go, this is your email: Welcome to Lostfinder kindly set your password by visiting this link: localhost:4000/pass/'+ randomIdentifier);
+	
 res.status(201).json({status:201, id:1,message:'One more step to go, this is your email: Welcome to Lostfinder kindly set your password by visiting this link: localhost:4000/pass/'+ randomIdentifier});
 });
 setTimeout(()=>(
@@ -603,17 +603,16 @@ app.get('/dashboarditems/:token',(req,res)=>{
 		let items = [];
 		let {userEmail} = verifiedJwt;
 		User.find({userEmail},{claims:1,reporter:1},function(err,ObjectIds){
-			console.log('uhj',ObjectIds);
-			
+					
 			let aggregatedSearchObjectIds = [];
 			if (ObjectIds[0].claims.length==0 ){
 
 				//create dummy item
 				aggregatedSearchObjectIds.push({'_id': new ObjectId('6083d7e039dabf0ce867d8de')});
-				console.log('agg',aggregatedSearchObjectIds);
+			
 			}else{
 				let generatedItems = ObjectIds[0].claims.map(objectid=>{
-					// console.log('ob',objectid);
+					
 				aggregatedSearchObjectIds.push({'_id':objectid});
 				});
 			} 
@@ -625,7 +624,7 @@ app.get('/dashboarditems/:token',(req,res)=>{
 
 				
 				Item.find({"$or":aggregatedSearchObjectIds},{type:1,name:1,description:1,claims:1,reporter:1,status:1,dateSettled:1},function(err,item){
-					console.log('ol',item);
+				
 					let numberOfItems = item.length;
 
 					let newItemArray = [];
@@ -682,7 +681,7 @@ app.get('/dashboarditems/:token',(req,res)=>{
 
 app.post('/decideonitem',(req,res)=>{
 let {_id,decision,token,position,status} = req.body;
-console.log('ssta',status);
+
 let verifiedJwt = confirmtoken(token);
 let userEmail = verifiedJwt.userEmail;
 
@@ -707,7 +706,7 @@ Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(e
 
 		Item.updateOne({"$and":[{"_id":{"$eq":_id},"status":{"$ne":"settled"},"reporter":{"$eq":userEmail}}]},{"$set":{[decisionFieldToUpdate]:decision,"status":status,dateSettled: Date(),[statusDate]:Date()}},function(err,newDoc){
 			if(!err && newDoc.nModified === 1){
-				console.log('here',newDoc);
+				
 				let mailDetails = {
 				to:docs[0].reporter,
 				subject:`Notification of ${decision} activity`,
