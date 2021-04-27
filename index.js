@@ -38,9 +38,18 @@ const ItemSchema = new Schema({
 
 });
 
+const FAQSchema = new Schema({
+
+	questionNumber: Number,
+	question: String,
+	answer: String,
+
+});
+
 const Model = mongoose.model;
 const User = Model('usercredentials',UserSchema);
 const Item = Model('items', ItemSchema);
+const Faq = Model('faqs', FAQSchema);
 
 
 const app = express();
@@ -745,6 +754,39 @@ Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(e
 	}
 });
 
+
+});
+
+
+app.get('/faqs',(req,res)=>{
+
+	Faq.find({},function(err,faqs){
+
+		res.json({faqs});
+
+	});
+
+});
+
+app.post('/contact',(req,res)=>{
+
+	let {firstName, lastName, userEmail, message, subject} = req.body;
+	if (firstName && lastName && userEmail && message && subject){
+	let mailDetails = {
+		to:userEmail,
+		subject:`${subject} - From Contact Form`,
+		htmlBody:
+		`<h4>Hello LostFinder,</h4>
+		<p>This is ${firstName} ${lastName}.</p>
+		<p>Here is my message:</p>
+		${message}`,
+		filePath:undefined,
+	}
+	mail.mailsender(mailDetails);
+	res.json({message:'we should get back to you via the provided email',id:'1'});
+}else{
+	res.json({message:'incomplete inputs',id:'2'});
+}
 
 });
 
