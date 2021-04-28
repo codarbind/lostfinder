@@ -57,7 +57,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static('html'));
-app.use(cors({origin:true,credentials:true}));
+app.use(cors({origin:'https://lostfinder.com.ng',credentials:true}));
 
 var corsOptions = {
   origin: 'https://lostfinder.com.ng',
