@@ -609,6 +609,7 @@ app.get('/dashboarditems/:token',cors(corsOptions),(req,res,next)=>{
 
 	
 	let {token} = req.params;
+	token = token.replace(/[-]/g,".");
 
 	let verifiedJwt = confirmtoken(token);
 
