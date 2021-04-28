@@ -602,6 +602,13 @@ app.post('/returnitem',(req,res)=>{
 
 app.get('/dashboarditems/:token',(req,res)=>{
 
+	res.setHeader('Access-Control-Allow-Orign', 'http://localhost:3000');
+	res.setHeader('Access-Control-Allow-Credentials', true);
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+	res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept');
+
+
+
 	let {token} = req.params;
 
 	let verifiedJwt = confirmtoken(token);
