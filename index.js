@@ -57,10 +57,10 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static('html'));
-app.use(cors({origin:'https://lostfinder.com.ng',credentials:true}));
+app.use(cors({origin:'https://www.lostfinder.com.ng',credentials:true}));
 
 var corsOptions = {
-  origin: 'https://lostfinder.com.ng',
+  origin: 'https://www.lostfinder.com.ng',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
