@@ -59,6 +59,11 @@ app.use(cookieParser());
 app.use(express.static('html'));
 app.use(cors({origin:true,credentials:true}));
 
+var corsOptions = {
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
 /*var toMail = 'adekolaabdwahababisoye@gmail.com';
 var mailSubject = 'Welcome to Lostfinder';
 var mailBody = 'thank you for signing up';
@@ -102,7 +107,7 @@ return jwtisedRandomNumber.slice(jwtisedRandomNumber.indexOf('.') +1,jwtisedRand
 
 
 
-app.get('/', (req, res)=> {
+app.get('/',cors(corsOptions),(req, res)=> {
 	let userEmail = ', you are not logged in.';
 	jwt.verify(req.cookies.jwt,'TOP_SECRET' ,function(err,verifiedJwt){
 	verifiedJwt ? userEmail = verifiedJwt.logEmail : userEmail ;
@@ -111,7 +116,7 @@ app.get('/', (req, res)=> {
 });
 
 
-app.post('/login', (req, res)=>{
+app.post('/login',cors(corsOptions), (req, res)=>{
 		let {logEmail, logPassword} = req.body;
 
 		User.find({'userEmail': logEmail}, {userPassword:1,firstName:1}, function(err, docs){
@@ -150,7 +155,7 @@ app.post('/login', (req, res)=>{
 });
 
 
-app.post('/signup', (req, res)=>{
+app.post('/signup',cors(corsOptions), (req, res)=>{
 let {firstName, lastName, userEmail} = req.body;
 let userPassword = null;
 
@@ -206,7 +211,7 @@ setTimeout(()=>(
 });
 
 
-app.get('/pass/:pass',(req,res)=>{
+app.get('/pass/:pass',cors(corsOptions),(req,res,next)=>{
 	if(!req.params.pass){
 		res.json('we did not get any parameter o');
 	} else {
@@ -226,7 +231,7 @@ app.get('/pass/:pass',(req,res)=>{
 });
 
 
-app.post('/pass/setpassword',(req,res)=>{
+app.post('/pass/setpassword',cors(corsOptions),(req,res,next)=>{
 let {password, userEmail, randomIdentifier} = req.body;
 
 if (password && userEmail && randomIdentifier){
@@ -281,7 +286,7 @@ const token = jwt.sign(
 });
 
 
-app.post('/home',(req,res)=>{
+app.post('/home',cors(corsOptions),(req,res,next)=>{
 	let userEmail = ', you are not logged in.';
 	jwt.verify(req.cookies.jwt,'TOP_SECRET' ,function(err,verifiedJwt){
 				
@@ -291,7 +296,7 @@ app.post('/home',(req,res)=>{
 })
 
 
-app.get('/home',(req,res)=>{
+app.get('/home',cors(corsOptions),(req,res,next)=>{
 	let userEmail = ', you are not logged in.';
 	var auth;
 	jwt.verify(req.cookies.jwt,'TOP_SECRET' ,function(err,verifiedJwt){
@@ -304,19 +309,19 @@ app.get('/home',(req,res)=>{
 })
 
 
-app.get('/signout',(req,res)=>{
+app.get('/signout',cors(corsOptions),(req,res,next)=>{
 	res.cookie('jwt', null);
 	let userEmail = ', you are not logged in.';
 	res.redirect('home')
 })
 
-app.get('/auth', (req,res)=>{
+app.get('/auth',cors(corsOptions), (req,res)=>{
 	res.render('auth');
 })
 
 
 
-app.post('/confirmtoken',(req,res)=>{
+app.post('/confirmtoken',cors(corsOptions),(req,res,next)=>{
 
 	let {token} = req.body;
 		let verifiedJwt = confirmtoken(token);
@@ -324,7 +329,7 @@ app.post('/confirmtoken',(req,res)=>{
 		verifiedJwt ? (res.json({verifiedJwt, auth:true}) ) : (res.json({auth:false,verifiedJwt})) ;
 })
 
-app.get('/test',(req,res)=>{
+app.get('/test',cors(corsOptions),(req,res,next)=>{
 
 	User.find({},(err,results)=>{
 		res.json(results);
@@ -332,7 +337,7 @@ app.get('/test',(req,res)=>{
 
 });
 
-app.post('/resetpassword',(req,res)=>{
+app.post('/resetpassword',cors(corsOptions),(req,res,next)=>{
 let {userEmail} =req.body;
 let randomIdentifier;
 
@@ -373,7 +378,7 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 	});
 });
 
-app.post('/reportitem',(req,res)=>{
+app.post('/reportitem',cors(corsOptions),(req,res,next)=>{
 
 	let {itemName, shortD, location, date, type, reporter, status, token} = req.body;
 
@@ -417,7 +422,7 @@ User.update({userEmail: results.reporter},{"$push":{claims:results._id}},functio
 
 });
 
-app.get('/items/:type',(req,res)=>{
+app.get('/items/:type',cors(corsOptions),(req,res,next)=>{
 
 	let {type} = req.params;
 	
@@ -428,7 +433,7 @@ app.get('/items/:type',(req,res)=>{
 
 });
 
-app.get('/itemid/:id',(req,res)=>{
+app.get('/itemid/:id',cors(corsOptions),(req,res,next)=>{
 
 	let {id} = req.params;
 	Item.find({'_id': new ObjectId(id)},{name:1,description:1},function(err,docs){
@@ -439,7 +444,7 @@ app.get('/itemid/:id',(req,res)=>{
 
 });
 
-app.post('/claimitem',(req,res)=>{
+app.post('/claimitem',cors(corsOptions),(req,res,next)=>{
 
 	let {id,token,location,when,description}=req.body;
 	let verifiedJwt =  confirmtoken(token);
@@ -511,7 +516,7 @@ app.post('/claimitem',(req,res)=>{
 });
 
 
-app.post('/returnitem',(req,res)=>{
+app.post('/returnitem',cors(corsOptions),(req,res,next)=>{
 
 	let {id,token,location,when,description}=req.body;
 	let verifiedJwt =  confirmtoken(token);
@@ -600,7 +605,7 @@ app.post('/returnitem',(req,res)=>{
 
 });
 
-app.get('/dashboarditems/:token',(req,res)=>{
+app.get('/dashboarditems/:token',cors(corsOptions),(req,res,next)=>{
 
 	
 	let {token} = req.params;
@@ -689,7 +694,7 @@ app.get('/dashboarditems/:token',(req,res)=>{
 			}
 		});
 
-app.post('/decideonitem',(req,res)=>{
+app.post('/decideonitem',cors(corsOptions),(req,res,next)=>{
 let {_id,decision,token,position,status} = req.body;
 
 let verifiedJwt = confirmtoken(token);
@@ -756,7 +761,7 @@ Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(e
 });
 
 
-app.get('/faqs',(req,res)=>{
+app.get('/faqs',cors(corsOptions),(req,res,next)=>{
 
 	Faq.find({},function(err,faqs){
 
@@ -766,7 +771,7 @@ app.get('/faqs',(req,res)=>{
 
 });
 
-app.post('/contact',(req,res)=>{
+app.post('/contact',cors(corsOptions),(req,res,next)=>{
 
 	let {firstName, lastName, userEmail, message, subject} = req.body;
 	if (firstName && lastName && userEmail && message && subject){
