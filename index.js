@@ -184,10 +184,10 @@ newUser.save((err, results)=>{
 			htmlBody:
 			`<h4>Hello ${results.firstName},</h4>
 			<p>One more step to go:</p>
-			<p>kindly set your password by visiting this link: losfinder.com.ng/pass/${results.randomIdentifier}</p>
+			<p>kindly set your password by visiting this link: lostfinder.com.ng/pass/${results.randomIdentifier}</p>
 			<p>This link shall expire in 30 minutes</p>
 			<p>Thank you</p>`,
-			filePath:undefined,
+			
 		}
 
 		mail.mailsender(mailDetails);
@@ -257,14 +257,12 @@ const token = jwt.sign(
 		<p>Your password was set successfully, you can now log in with it: lostfinder.com.ng/login</p>
 
 		<p>If you are a new user:<p/>
-		<p>Your signing up process was successful.</p>
+		<p>This implies that your signing up process was successful.</p>
 		<p>We hope to make the world a better place by getting back people's item to them, and finding your own.</p>
-		<p>Please do well to read our guide on how to use the platform: lostfinder.com.ng/theRoute</p>
-		<p>Moreso, it is very, and more important to digest the security tips here: lostfinder.com.ng/tipsRoute</p>
+		<p>Moreso, it is very, and more important to digest the security tips at the bottom of this page: lostfinder.com.ng/terms</p>
 		<p>We have attached an design flyer, please help us share it to your Whatsapp contacts, groups, use it as status, share on Facebok, Twitter and any other social media platform you use.</p>
 		<p>Tweet at us @lostfinder twitter.com/lostfinder</p>
 		<p>Thank you</p>`,
-		filePath:undefined,
 	}
 	mail.mailsender(mailDetails);
 		res.status(200).json({message:'password set successful taking you to home page',status:200,id:1,token});
@@ -360,12 +358,11 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 		to:userEmail,
 		subject:'Reset Your Lostfinder Password',
 		htmlBody:
-		`<h4>Hello ${firstName},</h4>
+		`<h4>Hello,</h4>
 		<p>We received a request to reset your password, kindly use this link to complete it: lostfinder.com.ng/${randomIdentifier}</p>
 		<p>If you are not the one that initiated the password reset, kindly ignore but report this to us, you can still log in with your known latest password</p>
 		<p>This link shall expire in 30 minutes</p>
 		<p>Thank you</p>`,
-		filePath:undefined,
 	}
 	mail.mailsender(mailDetails);
 			res.status(200).json({message:'A reset link has been sent to the provided email address, please click on it to reset your password', id:1,status:200});
@@ -424,7 +421,7 @@ app.get('/items/:type',(req,res)=>{
 
 	let {type} = req.params;
 	
-	Item.find({type},(err,docs)=>{
+	Item.find({"$and":[{"type":type,"status":{"$ne":'settled'}}]},(err,docs)=>{
 		res.json(docs);
 		
 	});
@@ -527,9 +524,10 @@ app.post('/returnitem',(req,res)=>{
 		
 
 		//confirm if user returning is the one who lost that item
-				Item.find({"$and":[{_id:new ObjectId(id),reporter:{"$eq":userEmail}}]},{userEmail:1},function(err,docs){
+				Item.find({"$and":[{_id:new ObjectId(id)}]},function(err,docs){
+					//	reporter:{"$eq":userEmail}
 			
-					if(docs.length ==1){
+					if(docs.length == 1 && docs[0].reporter == userEmail ){
 						
 						return res.json({message:"you cannot return an item you lost",id:'2'});
 
@@ -540,35 +538,36 @@ app.post('/returnitem',(req,res)=>{
 
 									let claimObject = `claims.${userEmail}`;
 
-					Item.find({"$and":[{_id:new ObjectId(id),[claimObject]:{"$exists":true}}]},function(err,docs){
+					Item.find({"$and":[{_id:new ObjectId(id),[claimObject]:{"$exists":true}}]},function(err,docx){
 		
-					if(docs.length == 1){
+					if(docx.length == 1){
 					claimedBefore = true;
 					return res.json({message:"you can only return an item once",id:'2'});
 					}	else{
-					Item.updateOne({_id: new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'whereFound':location,'whenSeen':when,'dateReturned':Date()}}},function(err,docs){
+					Item.updateOne({_id: new ObjectId(id)},{"$set":{[claimObject]:{'itemDescription':description,'whereFound':location,'whenSeen':when,'dateReturned':Date()}}},function(err,docy){
 									
-										if(docs){
+										if(docy){
 										
 											userEmail = userEmail.replace(/[*]/g,".");
 											User.updateOne({userEmail},{"$push":{claims: new ObjectId(id)}},function(err,doc){
 
 												if(doc){
 
+
+
 													let reporter = docs[0].reporter;
 													let mailDetails = {
-														to:userEmail,
-														subject:'IS THIS YOUR ITEM? - Lostfinder',
+														to:reporter,
+														subject:'IS THIS YOUR ITEM : ? - Lostfinder',
 														htmlBody:
-														`<h4>Hello ${firstName},</h4>
-														<p>There is an activity on this your item:</p>
-														<p>Item Name:${docs[0].name}</p>
-														<p>Item Description:${docs[0].name}</p>
+														`<h4>Hello,</h4>
+														<p>There is a new activity on this your item:</p>
+														<p><strong>Item Name:</strong> ${docs[0].name}</p>
+														<p><strong>Item Description:</strong> ${docs[0].description}</p>
 														<p>Does the description below matches with the item you reported?</p>
-														<p>The User's Description:${description}</p>
-														<p>kindly log on to see full details and take actions.</p>
+														<p>The User's Description:<strong> ${description}</strong></p>
+														<p>kindly log on to see full details and take actions. lostfinder.com.ng/login</p>
 														<p>Best regards</p>`,
-														filePath:undefined,
 													}
 													mail.mailsender(mailDetails);
 													res.json({message:'Returning process has been initiated, you\'ll get update via email and dashboard',id:'1'});
@@ -719,29 +718,27 @@ Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(e
 				
 				let mailDetails = {
 				to:docs[0].reporter,
-				subject:`Notification of ${decision} activity`,
+				subject:`Notification of "${decision}" claim`,
 				htmlBody:
-				`<h4>Hello ${firstName},</h4>
-				<p>There was a recent ${decision} on this item ${docs[0].name} with description as "${docs[0].itemDescription}".</p>
-				<p>Kindly see your dashboard for furhter details</p>
+				`<h4>Hello,</h4>
+				<p>There was a recent "${decision}" on this item: ${docs[0].name} with description as "${docs[0].description}".</p>
+				<p>Kindly see your dashboard for further details</p>
 				<p>Thank you</p>`,
-				filePath:undefined,
 			}
 			mail.mailsender(mailDetails);//send to reporter
-			for (var i = emailOfClaimers.length - 1; i >= 0; i--) {
+			if(decision == 'accepted'){for (var i = emailOfClaimers.length - 1; i >= 0; i--) {
 				emailOfClaimers[i]
 				let mailDetails = {
 				to:emailOfClaimers[i],
 				subject:`Notification of ${decision} activity`,
 				htmlBody:
-				`<h4>Hello ${firstName},</h4>
+				`<h4>Hello,</h4>
 				<p>There was a recent ${decision} on this item ${docs[0].name} with description as "${docs[0].itemDescription}".</p>
-				<p>Kindly see your dashboard for furhter details</p>
-				<p>Thank you</p>`,
-				filePath:undefined,
+				<p>Kindly see your dashboard to confirm if it was your claim that was accepted.</p>
+				<p>Thank you.</p>`,
 			}
 			mail.mailsender(mailDetails);//send to claimers
-			}
+			}}
 				res.json({message: 	`Claim ${decision} successfully`});
 			}else if(!err && newDoc.nModified === 0){
 				res.json({message:'Failed! \n You had decided on this item. \n Or the item has been settled in another claim instance.'});
