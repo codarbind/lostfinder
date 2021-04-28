@@ -60,7 +60,7 @@ app.use(express.static('html'));
 app.use(cors({origin:true,credentials:true}));
 
 var corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: 'https://lostfinder.com.ng',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
