@@ -609,8 +609,9 @@ app.post('/returnitem',(req,res)=>{
 app.post('/dashboarditems',(req,res)=>{
 
 	
-	let {token} = req.body;
-
+	let {tokenL,tokenM,tokenR,tokenExtra} = req.body;
+	let token = `${tokenL}.${tokenM}.${tokenR}`;
+console.log(tokenL,tokenM,tokenR,tokenExtra);
 	console.log(token);
 
 	let verifiedJwt = confirmtoken(token);
