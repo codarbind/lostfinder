@@ -57,14 +57,14 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static('html'));
-app.use(cors({origin:'https://www.lostfinder.com.ng',credentials:true}));
+app.use(cors({origin:true,credentials:true}));
 
-var corsOptions = {
-  origin: 'https://www.lostfinder.com.ng',
+/*var corsOptions = {
+  origin: 'http://localhost:3000',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
-/*var toMail = 'adekolaabdwahababisoye@gmail.com';
+var toMail = 'adekolaabdwahababisoye@gmail.com';
 var mailSubject = 'Welcome to Lostfinder';
 var mailBody = 'thank you for signing up';
 filePath = undefined;*/
@@ -107,7 +107,7 @@ return jwtisedRandomNumber.slice(jwtisedRandomNumber.indexOf('.') +1,jwtisedRand
 
 
 
-app.get('/',cors(corsOptions),(req, res)=> {
+app.get('/',(req,res)=> {
 	let userEmail = ', you are not logged in.';
 	jwt.verify(req.cookies.jwt,'TOP_SECRET' ,function(err,verifiedJwt){
 	verifiedJwt ? userEmail = verifiedJwt.logEmail : userEmail ;
@@ -116,7 +116,7 @@ app.get('/',cors(corsOptions),(req, res)=> {
 });
 
 
-app.post('/login',cors(corsOptions), (req, res)=>{
+app.post('/login',(req,res)=>{
 		let {logEmail, logPassword} = req.body;
 
 		User.find({'userEmail': logEmail}, {userPassword:1,firstName:1}, function(err, docs){
@@ -155,7 +155,7 @@ app.post('/login',cors(corsOptions), (req, res)=>{
 });
 
 
-app.post('/signup',cors(corsOptions), (req, res)=>{
+app.post('/signup',(req, res)=>{
 let {firstName, lastName, userEmail} = req.body;
 let userPassword = null;
 
@@ -211,7 +211,7 @@ setTimeout(()=>(
 });
 
 
-app.get('/pass/:pass',cors(corsOptions),(req,res,next)=>{
+app.get('/pass/:pass',(req,res)=>{
 	if(!req.params.pass){
 		res.json('we did not get any parameter o');
 	} else {
@@ -231,7 +231,7 @@ app.get('/pass/:pass',cors(corsOptions),(req,res,next)=>{
 });
 
 
-app.post('/pass/setpassword',cors(corsOptions),(req,res,next)=>{
+app.post('/pass/setpassword',(req,res)=>{
 let {password, userEmail, randomIdentifier} = req.body;
 
 if (password && userEmail && randomIdentifier){
@@ -286,7 +286,7 @@ const token = jwt.sign(
 });
 
 
-app.post('/home',cors(corsOptions),(req,res,next)=>{
+app.post('/home',(req,res)=>{
 	let userEmail = ', you are not logged in.';
 	jwt.verify(req.cookies.jwt,'TOP_SECRET' ,function(err,verifiedJwt){
 				
@@ -296,7 +296,7 @@ app.post('/home',cors(corsOptions),(req,res,next)=>{
 })
 
 
-app.get('/home',cors(corsOptions),(req,res,next)=>{
+app.get('/home',(req,res)=>{
 	let userEmail = ', you are not logged in.';
 	var auth;
 	jwt.verify(req.cookies.jwt,'TOP_SECRET' ,function(err,verifiedJwt){
@@ -309,27 +309,28 @@ app.get('/home',cors(corsOptions),(req,res,next)=>{
 })
 
 
-app.get('/signout',cors(corsOptions),(req,res,next)=>{
+app.get('/signout',(req,res)=>{
 	res.cookie('jwt', null);
 	let userEmail = ', you are not logged in.';
 	res.redirect('home')
 })
 
-app.get('/auth',cors(corsOptions), (req,res)=>{
+app.get('/auth',(req,res)=>{
 	res.render('auth');
 })
 
 
 
-app.post('/confirmtoken',cors(corsOptions),(req,res,next)=>{
+app.post('/confirmtoken',(req,res)=>{
 
 	let {token} = req.body;
 		let verifiedJwt = confirmtoken(token);
+		let {userEmail} = verifiedJwt;
 		
-		verifiedJwt ? (res.json({verifiedJwt, auth:true}) ) : (res.json({auth:false,verifiedJwt})) ;
+		verifiedJwt ? (res.json({verifiedJwt,userEmail, auth:true}) ) : (res.json({auth:false,verifiedJwt})) ;
 })
 
-app.get('/test',cors(corsOptions),(req,res,next)=>{
+app.get('/test',(req,res)=>{
 
 	User.find({},(err,results)=>{
 		res.json(results);
@@ -337,7 +338,7 @@ app.get('/test',cors(corsOptions),(req,res,next)=>{
 
 });
 
-app.post('/resetpassword',cors(corsOptions),(req,res,next)=>{
+app.post('/resetpassword',(req,res)=>{
 let {userEmail} =req.body;
 let randomIdentifier;
 
@@ -378,7 +379,7 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 	});
 });
 
-app.post('/reportitem',cors(corsOptions),(req,res,next)=>{
+app.post('/reportitem',(req,res)=>{
 
 	let {itemName, shortD, location, date, type, reporter, status, token} = req.body;
 
@@ -422,7 +423,7 @@ User.update({userEmail: results.reporter},{"$push":{claims:results._id}},functio
 
 });
 
-app.get('/items/:type',cors(corsOptions),(req,res,next)=>{
+app.get('/items/:type',(req,res)=>{
 
 	let {type} = req.params;
 	
@@ -433,7 +434,7 @@ app.get('/items/:type',cors(corsOptions),(req,res,next)=>{
 
 });
 
-app.get('/itemid/:id',cors(corsOptions),(req,res,next)=>{
+app.get('/itemid/:id',(req,res)=>{
 
 	let {id} = req.params;
 	Item.find({'_id': new ObjectId(id)},{name:1,description:1},function(err,docs){
@@ -444,7 +445,7 @@ app.get('/itemid/:id',cors(corsOptions),(req,res,next)=>{
 
 });
 
-app.post('/claimitem',cors(corsOptions),(req,res,next)=>{
+app.post('/claimitem',(req,res)=>{
 
 	let {id,token,location,when,description}=req.body;
 	let verifiedJwt =  confirmtoken(token);
@@ -516,7 +517,7 @@ app.post('/claimitem',cors(corsOptions),(req,res,next)=>{
 });
 
 
-app.post('/returnitem',cors(corsOptions),(req,res,next)=>{
+app.post('/returnitem',(req,res)=>{
 
 	let {id,token,location,when,description}=req.body;
 	let verifiedJwt =  confirmtoken(token);
@@ -605,11 +606,12 @@ app.post('/returnitem',cors(corsOptions),(req,res,next)=>{
 
 });
 
-app.get('/dashboarditems/:token',cors(corsOptions),(req,res,next)=>{
+app.post('/dashboarditems',(req,res)=>{
 
 	
-	let {token} = req.params;
-	token = token.replace(/[-]/g,".");
+	let {token} = req.body;
+
+	console.log(token);
 
 	let verifiedJwt = confirmtoken(token);
 
@@ -695,7 +697,7 @@ app.get('/dashboarditems/:token',cors(corsOptions),(req,res,next)=>{
 			}
 		});
 
-app.post('/decideonitem',cors(corsOptions),(req,res,next)=>{
+app.post('/decideonitem',(req,res)=>{
 let {_id,decision,token,position,status} = req.body;
 
 let verifiedJwt = confirmtoken(token);
@@ -762,7 +764,7 @@ Item.find({"$and":[{"_id":{"$eq":_id},"reporter":{"$eq":userEmail}}]},function(e
 });
 
 
-app.get('/faqs',cors(corsOptions),(req,res,next)=>{
+app.get('/faqs',(req,res)=>{
 
 	Faq.find({},function(err,faqs){
 
@@ -772,7 +774,7 @@ app.get('/faqs',cors(corsOptions),(req,res,next)=>{
 
 });
 
-app.post('/contact',cors(corsOptions),(req,res,next)=>{
+app.post('/contact',(req,res)=>{
 
 	let {firstName, lastName, userEmail, message, subject} = req.body;
 	if (firstName && lastName && userEmail && message && subject){
