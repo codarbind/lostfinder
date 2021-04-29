@@ -659,7 +659,7 @@ app.get('/dashboarditems/:token',(req,res)=>{
 							if(userEmail != newItem.reporter){//if current user is not the reporter
 												let userClaim = {}; //
 												userEmail1 = userEmail.replace(/[.]/g,"*");
-												userClaim[userEmail1] = (ObjectIds[0].claims.length == 0)? newItem.claims[0]: newItem.claims[userEmail1];//pick out only current users claim
+												userClaim[userEmail1] = (objectIds[0].claims.length == 0)? newItem.claims[0]: newItem.claims[userEmail1];//pick out only current users claim
 												newItem.claims = userClaim; //then delete/overwrite all other claims
 												/*var notOwner ={owner: false};
 												var owner = {owner:true};*/
