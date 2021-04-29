@@ -177,6 +177,7 @@ const newUser = new User({
 	userPassword,
 	randomIdentifier,
 	regDate: Date(),
+	claims:[],
 
 });
 newUser.save((err, results)=>{
@@ -606,12 +607,12 @@ app.post('/returnitem',(req,res)=>{
 
 });
 
-app.post('/dashboarditems',(req,res)=>{
+app.get('/dashboarditems/:token',(req,res)=>{
 
 	
-	let {tokenL,tokenM,tokenR,tokenExtra} = req.body;
-	let token = `${tokenL}.${tokenM}.${tokenR}`;
-console.log(tokenL,tokenM,tokenR,tokenExtra);
+	let {token} = req.params;
+	//let token = `${tokenL}.${tokenM}.${tokenR}`;
+	//console.log(tokenL,tokenM,tokenR,tokenExtra);
 	console.log(token);
 
 	let verifiedJwt = confirmtoken(token);
@@ -621,16 +622,18 @@ console.log(tokenL,tokenM,tokenR,tokenExtra);
 	}else{
 		let items = [];
 		let {userEmail} = verifiedJwt;
-		User.find({userEmail},{claims:1,reporter:1},function(err,ObjectIds){
+		User.find({userEmail},{claims:1,reporter:1},function(err,objectIds){
 					
 			let aggregatedSearchObjectIds = [];
-			if (ObjectIds[0].claims.length==0 ){
+
+
+			if (objectIds && objectIds[0].claims.length==0 ){
 
 				//create dummy item
 				aggregatedSearchObjectIds.push({'_id': new ObjectId('6083d7e039dabf0ce867d8de')});
 			
-			}else{
-				let generatedItems = ObjectIds[0].claims.map(objectid=>{
+			}else if(objectIds && objectIds[0].claims.length>0 ){
+				let generatedItems = objectIds[0].claims.map(objectid=>{
 					
 				aggregatedSearchObjectIds.push({'_id':objectid});
 				});
