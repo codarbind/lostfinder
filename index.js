@@ -177,7 +177,6 @@ const newUser = new User({
 	userPassword,
 	randomIdentifier,
 	regDate: Date(),
-	claims:[],
 
 });
 newUser.save((err, results)=>{
@@ -267,7 +266,7 @@ const token = jwt.sign(
 		<p>We hope to make the world a better place by getting back people's item to them, and finding your own.</p>
 		<p>Moreso, it is very, and more important to digest the security tips at the bottom of this page: lostfinder.com.ng/terms</p>
 		<p>We have attached an design flyer, please help us share it to your Whatsapp contacts, groups, use it as status, share on Facebok, Twitter and any other social media platform you use.</p>
-		<p>Tweet at us @lostfinder twitter.com/lostfinder</p>
+		<p>Tweet at us @lostfinder twitter.com/lostfinder17</p>
 		<p>Thank you</p>`,
 	}
 	mail.mailsender(mailDetails);
@@ -611,10 +610,7 @@ app.get('/dashboarditems/:token',(req,res)=>{
 
 	
 	let {token} = req.params;
-	//let token = `${tokenL}.${tokenM}.${tokenR}`;
-	//console.log(tokenL,tokenM,tokenR,tokenExtra);
-	console.log(token);
-
+	
 	let verifiedJwt = confirmtoken(token);
 
 	if(!verifiedJwt){
