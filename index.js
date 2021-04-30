@@ -365,7 +365,7 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 		subject:'Reset Your Lostfinder Password',
 		htmlBody:
 		`<h4>Hello,</h4>
-		<p>We received a request to reset your password, kindly use this link to complete it: lostfinder.com.ng/${randomIdentifier}</p>
+		<p>We received a request to reset your password, kindly use this link to complete it: lostfinder.com.ng/pass/${randomIdentifier}</p>
 		<p>If you are not the one that initiated the password reset, kindly ignore but report this to us, you can still log in with your known latest password</p>
 		<p>This link shall expire in 30 minutes</p>
 		<p>Thank you</p>`,
