@@ -17,7 +17,7 @@ let {to,subject,mailBody,htmlBody,filePath} = messageParams;
 
   // Specify what the email will look like
   const mailOpts = {
-    from: 'Lostfinder <we@lostfinder.com.ng>', 
+    from: 'Lostfinder <mailhouse247@zohomail.com>', 
     to: to,
     subject: subject ,
     text: mailBody,// fields.mailbody,
