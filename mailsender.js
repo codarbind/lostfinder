@@ -24,7 +24,7 @@ let {to,subject,mailBody,htmlBody,filePath} = messageParams;
     html:htmlBody,
     attachments: [
           {   // filename and content type is derived from path
-                  //path: filePath,
+                  path: "./images/lfgad.png",
               },
     ]
 
