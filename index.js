@@ -422,6 +422,7 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 		<p>We received a request to reset your password, kindly use this link to complete it: lostfinder.com.ng/pass/${randomIdentifier}</p>
 		<p>If you are not the one that initiated the password reset, kindly ignore but report this to us, you can still log in with your known latest password</p>
 		<p>This link may expire in 30 minutes</p>
+		<p>We have attached an design flyer, please help us share it to your Whatsapp contacts, groups, use it as status, share on Facebok, Twitter and any other social media platform you use.</p>
 		<p>Thank you</p>`,
 	}
 	mail.mailsender(mailDetails);
@@ -627,6 +628,7 @@ app.post('/returnitem',(req,res)=>{
 														<p>Does the description below matches with the item you reported?</p>
 														<p>The User's Description:<strong> ${description}</strong></p>
 														<p>kindly log on to see full details and take actions. lostfinder.com.ng/login</p>
+														<p>We have attached an design flyer, please help us share it to your Whatsapp contacts, groups, use it as status, share on Facebok, Twitter and any other social media platform you use.</p>
 														<p>Best regards</p>`,
 													}
 													mail.mailsender(mailDetails);
