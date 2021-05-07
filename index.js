@@ -13,7 +13,7 @@ const nodemailer = require('nodemailer');
 const mail = require('./mailsender')
 
 
-const db = mongoose.connect(process.env.LOSTFINDER_MONGO_DB, {useNewUrlParser: true});
+const db = mongoose.connect(process.env.LOSTFINDER_MONGO_DB, {useNewUrlParser: true, useUnifiedTopology: true});
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({
 firstName: String,
@@ -59,17 +59,7 @@ app.use(cookieParser());
 app.use(express.static('html'));
 app.use(cors({origin:true,credentials:true}));
 
-/*var corsOptions = {
-  origin: 'http://localhost:3000',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
 
-var toMail = 'adekolaabdwahababisoye@gmail.com';
-var mailSubject = 'Welcome to Lostfinder';
-var mailBody = 'thank you for signing up';
-filePath = undefined;*/
-
-//mail.mailsender(toMail,mailSubject,mailBody,filePath);
 
 function confirmtoken(token){
 	return jwt.verify(token,'TOP_SECRET' ,function(err,verifiedJwt){
@@ -89,6 +79,44 @@ function confirmEmail(email){
     .catch(error => {
         console.log(error);
     });*/
+}
+
+function signup(firstName,lastName,userEmail,userPassword,res){
+
+	let randomIdentifier = generateRandomIdentifier();
+
+const newUser = new User({
+
+	firstName,
+	lastName,
+	userEmail,
+	userPassword,
+	randomIdentifier,
+	regDate: Date(),
+
+});
+newUser.save((err, results)=>{
+	if (err) return console.log('this is the error ' + err);
+
+	if(results){
+			let mailDetails = {
+			to:results.userEmail,
+			subject:'Set Your Password',
+			htmlBody:
+			`<h4>Hello ${results.firstName},</h4>
+			<p>One more step to go:</p>
+			<p>kindly set your password by visiting this link: lostfinder.com.ng/pass/${results.randomIdentifier}</p>
+			<p>This link may expire in 30 minutes</p>
+			<p>Thank you</p>`,
+			
+		}
+
+		mail.mailsender(mailDetails);
+	}
+	
+return res.status(201).json({status:201, id:1,message:'One more step to go, this is your email: Welcome to Lostfinder kindly set your password by visiting this link: localhost:4000/pass/'+ randomIdentifier});
+});
+
 }
 
 
@@ -142,6 +170,11 @@ app.post('/login',(req,res)=>{
 												'TOP_SECRET',
 												{expiresIn: 5*24*60*60}
 														);
+
+									//nullify randomIdentifier after a successful login after a password reset has been initiated or not
+									User.updateOne({'userEmail':logEmail},{'randomIdentifier':null},function(err,outDoc){
+
+									});
 									res.status(200).json({token,message:'Login Successfull, taking you to the home page!!!', id:1,status:200});
 									
 								} else{
@@ -161,15 +194,32 @@ let userPassword = null;
 
 	if (userEmail ){
 
-User.find({'userEmail': userEmail}, 'userPassword', function(err, docs){
-
-if(docs[0]) return res.status(409).json({status:409,id:3,message:'user email exist'});
-
-let randomIdentifier = generateRandomIdentifier();
+User.find({'userEmail': userEmail}, {userEmail,userPassword:1,randomIdentifier:1}, function(err, docs){
 
 
+if(docs[0]){
 
-const newUser = new User({
+	if(docs[0].userPassword == null && docs[0].randomIdentifier){
+	//user has not confirmed email address yet, so delete old and reSignUP
+	let userEmailToDelete = docs[0].userEmail;
+	User.deleteMany({userEmail:userEmailToDelete}, function (err) {
+  		err ? console.log(err):  console.log("Successful deletion");
+		})
+
+	return signup(firstName,lastName,userEmail,userPassword,res);
+
+
+	}else if(docs[0].userPassword != null){
+	//user has confirmed email address
+	return res.status(409).json({status:409,id:3,message:'user email exist'});
+	}
+}
+
+
+
+signup(firstName,lastName,userEmail,userPassword,res);
+
+/* const newUser = new User({
 
 	firstName,
 	lastName,
@@ -199,11 +249,14 @@ newUser.save((err, results)=>{
 	}
 	
 res.status(201).json({status:201, id:1,message:'One more step to go, this is your email: Welcome to Lostfinder kindly set your password by visiting this link: localhost:4000/pass/'+ randomIdentifier});
-});
+}); 
+
 setTimeout(()=>(
 	User.deleteOne({randomIdentifier}, function (err) {
   err ? console.log(err):  console.log("Successful deletion");
 })),40*60*1000);//40mins
+*/
+
 });} else{
 
 	res.json({message:'incomplete inputs',id:2});
@@ -356,9 +409,10 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 			} else if(docs.nModified ===1) {
 			
 			setTimeout(()=>(
-	User.updateOne({randomIdentifier}, {"$set":{randomIdentifier:null}},{upsert:false}, function (err) {
+			User.updateOne({randomIdentifier}, {"$set":{randomIdentifier:null}},{upsert:false}, function (err) {
   			err ? console.log('error while NULLing randomIdentifier:',err):  console.log("Successful deletion");
 			})),1000*60*30);
+
 
 		let mailDetails = {
 		to:userEmail,
@@ -367,7 +421,7 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 		`<h4>Hello,</h4>
 		<p>We received a request to reset your password, kindly use this link to complete it: lostfinder.com.ng/pass/${randomIdentifier}</p>
 		<p>If you are not the one that initiated the password reset, kindly ignore but report this to us, you can still log in with your known latest password</p>
-		<p>This link shall expire in 30 minutes</p>
+		<p>This link may expire in 30 minutes</p>
 		<p>Thank you</p>`,
 	}
 	mail.mailsender(mailDetails);
@@ -795,6 +849,7 @@ app.post('/contact',(req,res)=>{
 }
 
 });
+
 
 const PORT = process.env.PORT || 4000;
 
