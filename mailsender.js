@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const nodemailer = require('nodemailer');
 
 const mailsender = (messageParams)=> {
@@ -9,7 +11,7 @@ let {to,subject,mailBody,htmlBody,filePath} = messageParams;
     port:587,
     auth: {
       user: 'mailhouse247@zohomail.com',
-      pass: 'Mother2020z'
+      pass: process.env.LOSTFINDER_MAIL_PASS
     }
   });
 
@@ -22,7 +24,7 @@ let {to,subject,mailBody,htmlBody,filePath} = messageParams;
     html:htmlBody,
     attachments: [
           {   // filename and content type is derived from path
-                  path: filePath,
+                  //path: filePath,
               },
     ]
 

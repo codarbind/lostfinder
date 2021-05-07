@@ -358,7 +358,7 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 			setTimeout(()=>(
 	User.updateOne({randomIdentifier}, {"$set":{randomIdentifier:null}},{upsert:false}, function (err) {
   			err ? console.log('error while NULLing randomIdentifier:',err):  console.log("Successful deletion");
-			})),120000);
+			})),1000*60*30);
 
 		let mailDetails = {
 		to:userEmail,
