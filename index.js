@@ -107,6 +107,7 @@ newUser.save((err, results)=>{
 			<p>One more step to go:</p>
 			<p>kindly set your password by visiting this link: lostfinder.com.ng/pass/${results.randomIdentifier}</p>
 			<p>This link may expire in 30 minutes</p>
+			<p>We have attached an design flyer, please help us share it to your Whatsapp contacts, groups, use it as status, share on Facebok, Twitter and any other social media platform you use.</p>
 			<p>Thank you</p>`,
 			
 		}
