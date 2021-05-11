@@ -7,17 +7,19 @@ let {to,subject,mailBody,htmlBody,filePath} = messageParams;
 // Instantiate the SMTP server
   const smtpTrans = nodemailer.createTransport({
     
-    host: 'smtp.zoho.com',
+    service: 'gmail',
+    host: 'smtp.gmail.com',
     port:587,
+  
     auth: {
-      user: 'mailhouse247@zohomail.com',
+      user: 'lostfinder17@gmail.com',
       pass: process.env.LOSTFINDER_MAIL_PASS
     }
   });
 
   // Specify what the email will look like
   const mailOpts = {
-    from: 'Lostfinder <mailhouse247@zohomail.com>', 
+    from: 'Lostfinder ', 
     to: to,
     subject: subject ,
     text: mailBody,// fields.mailbody,
