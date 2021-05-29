@@ -277,7 +277,7 @@ app.get('/pass/:pass',(req,res)=>{
 						  )
 														 																	 	 
 						: (
-					 		res.status(200).json({message:'the link must have expired, please use FORGOT PASSWORD.',status:404,id:2})
+					 		res.status(200).json({message:'the link must have expired, try signup or signing in.',status:404,id:2})
 					 		
 					 	  )										 		
 							});
@@ -427,7 +427,7 @@ User.updateOne({userEmail}, {"$set":{randomIdentifier}},{upsert:false}, function
 		<p>Thank you</p>`,
 	}
 	mail.mailsender(mailDetails);
-			res.status(200).json({message:'A reset link has been sent to the provided email address, please click on it to reset your password', id:1,status:200});
+			res.status(200).json({message:'A reset link has been sent to the provided email address (YOU MAY NEED TO CHECK SPAM), please click on it to reset your password', id:1,status:200});
 					
 			}else{
 					res.status(200).json({message:'wrong details',status:400,id:2})
