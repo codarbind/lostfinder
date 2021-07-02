@@ -7,12 +7,12 @@ let {to,subject,mailBody,htmlBody,filePath} = messageParams;
 // Instantiate the SMTP server
   const smtpTrans = nodemailer.createTransport({
     
-    service: 'gmail',
-    host: 'smtp.gmail.com',
+    //service: 'gmail',
+    host: 'smtp.mailgun.org',
     port:587,
   
     auth: {
-      user: 'lostfinder17@gmail.com',
+      user: process.env.LOSTFINDER_MAIL,
       pass: process.env.LOSTFINDER_MAIL_PASS
     }
   });
