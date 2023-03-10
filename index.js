@@ -12,6 +12,17 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const mail = require('./mailsender')
 
+const whitelist = ['https://lostfinder.com.ng', 'http://exam*ple2.com']
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      return true
+    } else {
+      return return res.status(204)
+    }
+  }
+}
+
 
 const db = mongoose.connect(process.env.LOSTFINDER_MONGO_DB, {useNewUrlParser: true, useUnifiedTopology: true});
 const Schema = mongoose.Schema;
