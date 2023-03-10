@@ -18,7 +18,7 @@ const corsOptions = {
     if (whitelist.indexOf(origin) !== -1) {
       return true
     } else {
-      return return res.status(204)
+      return res.status(204)
     }
   }
 }
