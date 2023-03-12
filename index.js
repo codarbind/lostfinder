@@ -13,7 +13,23 @@ const nodemailer = require("nodemailer");
 const mail = require("./mailsender");
 
 const whitelist = ["https://www.lostfinder.com.ng", "http://exam*ple2.com"];
-
+corsOptionsDelegate = function (req, callback) {
+  let corsOptions;
+  const req_origin = req.headers.origin;
+  const req_host = req.headers.host;
+  const req_ref = req.headers.referer;
+  const req_location = req.headers.location;
+  const req_add = req.socket.remoteAddress;
+  console.log({ req_add, req_host, req_location, req_origin, req_ref });
+  if (whitelist.indexOf(req.header.origin) !== -1) {
+    console.log("I can allow this origin ", origin);
+    corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
+  } else {
+    console.log("I allow this origin ", origin);
+    corsOptions = { origin: false }; // disable CORS for this request
+  }
+  //callback(null, corsOptions); // callback expects two parameters: error and options
+};
 const corsOptions = {
   origin: function (origin, callback) {
     //console.log({ req_origin });
@@ -71,6 +87,7 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("html"));
+app.use(cors(corsOptionsDelegate));
 app.use(cors(corsOptions));
 
 function confirmtoken(token) {
