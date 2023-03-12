@@ -39,7 +39,7 @@ corsOptionsDelegate = function (req, callback) {
     console.log("I allow this origin ", req_origin);
     corsOptions = { origin: false }; // disable CORS for this request
   }
-  //callback(null, corsOptions); // callback expects two parameters: error and options
+  callback(null, corsOptions); // callback expects two parameters: error and options
 };
 const corsOptions = {
   origin: function (origin, callback) {
