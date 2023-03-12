@@ -98,7 +98,7 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("html"));
-app.use(cors(corsOptionsDelegate));
+//app.use(cors(corsOptionsDelegate));
 app.use(cors(corsOptions));
 
 function confirmtoken(token) {
