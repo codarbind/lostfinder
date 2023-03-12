@@ -29,7 +29,7 @@ const corsOptions = {
     }
   },
 };
-app.use(cors(corsOptions));
+
 const db = mongoose.connect(process.env.LOSTFINDER_MONGO_DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -73,7 +73,7 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("html"));
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors(corsOptions));
 
 function confirmtoken(token) {
   return jwt.verify(token, "TOP_SECRET", function (err, verifiedJwt) {
