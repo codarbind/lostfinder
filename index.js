@@ -12,7 +12,7 @@ const axios = require("axios");
 const nodemailer = require("nodemailer");
 const mail = require("./mailsender");
 
-const whitelist = ["https://lostfinder.com.ng", "http://exam*ple2.com"];
+const whitelist = ["https://www.lostfinder.com.ng", "http://exam*ple2.com"];
 
 const corsOptions = {
   origin: function (origin, callback) {
