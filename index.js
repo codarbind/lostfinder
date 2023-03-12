@@ -20,7 +20,8 @@ corsOptionsDelegate = function (req, callback) {
   const req_ref = req.headers.referer;
   const req_location = req.headers.location;
   const req_add = req.socket.remoteAddress;
-  console.log({ req_add, req_host, req_location, req_origin, req_ref });
+  const req_ip = req.ip;
+  console.log({ req_add, req_host, req_location, req_origin, req_ref, req_ip });
 
   if (whitelist.indexOf(req_origin) !== -1) {
     console.log("I can allow this origin ", req_origin);
