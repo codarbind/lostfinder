@@ -191,6 +191,7 @@ app.get("/", (req, res) => {
 
 app.post("/login", (req, res) => {
   let { logEmail, logPassword } = req.body;
+  console.log({ logEmail, logPassword });
 
   User.find(
     { userEmail: logEmail },
@@ -251,6 +252,7 @@ app.post("/login", (req, res) => {
 
 app.post("/signup", (req, res) => {
   let { firstName, lastName, userEmail } = req.body;
+  console.log({ firstName, lastName, userEmail });
   let userPassword = null;
 
   if (userEmail) {
