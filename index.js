@@ -21,11 +21,12 @@ corsOptionsDelegate = function (req, callback) {
   const req_location = req.headers.location;
   const req_add = req.socket.remoteAddress;
   console.log({ req_add, req_host, req_location, req_origin, req_ref });
-  if (whitelist.indexOf(req.header.origin) !== -1) {
-    console.log("I can allow this origin ", origin);
+
+  if (whitelist.indexOf(req_origin) !== -1) {
+    console.log("I can allow this origin ", req_origin);
     corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
   } else {
-    console.log("I allow this origin ", origin);
+    console.log("I allow this origin ", req_origin);
     corsOptions = { origin: false }; // disable CORS for this request
   }
   //callback(null, corsOptions); // callback expects two parameters: error and options
