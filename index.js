@@ -54,7 +54,7 @@ const corsOptions = {
     }
   },
 };
-
+cors(corsOptions);
 const db = mongoose.connect(process.env.LOSTFINDER_MONGO_DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
