@@ -12,7 +12,14 @@ const axios = require("axios");
 const nodemailer = require("nodemailer");
 const mail = require("./mailsender");
 
-const whitelist = ["https://www.lostfinder.com.ng", "http://exam*ple2.com"];
+const confirmReqHeaders = (req, res, next) => {
+  let token = req.headers["x-access-client-token"];
+  if (token !== process.env.client_token)
+    return res.status(200).json({ message: "done" });
+  return next();
+};
+
+const whitelist = ["https://www.lostfinder.com.ng"];
 corsOptionsDelegate = function (req, callback) {
   let corsOptions;
   const req_origin = req.headers.origin;
@@ -54,7 +61,7 @@ const corsOptions = {
     }
   },
 };
-cors(corsOptions);
+//cors(corsOptions);
 const db = mongoose.connect(process.env.LOSTFINDER_MONGO_DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -98,8 +105,9 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("html"));
+app.use(confirmReqHeaders);
 //app.use(cors(corsOptionsDelegate));
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
 
 function confirmtoken(token) {
   return jwt.verify(
@@ -422,7 +430,8 @@ app.post("/home", (req, res) => {
   );
 });
 
-app.get("/home", (req, res) => {
+app.get("/home", cors({ origin: "kio.mkk" }), (req, res) => {
+  console.log("hu jio p");
   let userEmail = ", you are not logged in.";
   var auth;
   jwt.verify(
