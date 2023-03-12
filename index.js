@@ -17,15 +17,13 @@ const whitelist = ["https://lostfinder.com.ng", "http://exam*ple2.com"];
 const corsOptions = {
   origin: function (origin, callback) {
     //console.log({ req_origin });
+    console.log({ origin, indexof: whitelist.indexOf(origin) });
     if (whitelist.indexOf(origin) !== -1) {
       console.log("allow this origin ", origin);
       return true;
     } else {
       console.log("cannot allow this origin ", origin);
-      return res.status(200).json({
-        message:
-          "you dey mad!!!! monitoring you now, two can ...play the game!!!",
-      });
+      return false;
     }
   },
 };
@@ -76,9 +74,13 @@ app.use(express.static("html"));
 app.use(cors(corsOptions));
 
 function confirmtoken(token) {
-  return jwt.verify(token, "TOP_SECRET", function (err, verifiedJwt) {
-    return verifiedJwt;
-  });
+  return jwt.verify(
+    token,
+    process.env.LOSTFINDER_SECRET,
+    function (err, verifiedJwt) {
+      return verifiedJwt;
+    }
+  );
 }
 
 function confirmEmail(email) {
@@ -137,7 +139,7 @@ function generateRandomIdentifier() {
   //generate jwt for the randomIdentifier
   jwtisedRandomNumber = jwt.sign(
     { randomNumber },
-    "TOP_SECRET",
+    process.env.LOSTFINDER_SECRET,
     { expiresIn: 5 * 24 * 60 * 60 } //5days
   );
   //slice out the encoded payload
@@ -149,10 +151,14 @@ function generateRandomIdentifier() {
 
 app.get("/", (req, res) => {
   let userEmail = ", you are not logged in.";
-  jwt.verify(req.cookies.jwt, "TOP_SECRET", function (err, verifiedJwt) {
-    verifiedJwt ? (userEmail = verifiedJwt.logEmail) : userEmail;
-    res.redirect("home");
-  });
+  jwt.verify(
+    req.cookies.jwt,
+    process.env.LOSTFINDER_SECRET,
+    function (err, verifiedJwt) {
+      verifiedJwt ? (userEmail = verifiedJwt.logEmail) : userEmail;
+      res.redirect("home");
+    }
+  );
 });
 
 app.post("/login", (req, res) => {
@@ -184,7 +190,7 @@ app.post("/login", (req, res) => {
           if (result) {
             const token = jwt.sign(
               { userEmail: logEmail, firstName },
-              "TOP_SECRET",
+              process.env.LOSTFINDER_SECRET,
               { expiresIn: 5 * 24 * 60 * 60 }
             );
 
@@ -334,7 +340,7 @@ app.post("/pass/setpassword", (req, res) => {
                 let { userEmail, firstName } = doc[0];
                 const token = jwt.sign(
                   { userEmail, firstName },
-                  "TOP_SECRET",
+                  process.env.LOSTFINDER_SECRET,
                   { expiresIn: 5 * 24 * 60 * 60 } //5days
                 );
                 let cookJwt = res.cookie("jwt", token, {
@@ -376,23 +382,31 @@ app.post("/pass/setpassword", (req, res) => {
 
 app.post("/home", (req, res) => {
   let userEmail = ", you are not logged in.";
-  jwt.verify(req.cookies.jwt, "TOP_SECRET", function (err, verifiedJwt) {
-    verifiedJwt ? (userEmail = verifiedJwt.userEmail) : userEmail;
-    res.render("home", { userObject: userEmail });
-  });
+  jwt.verify(
+    req.cookies.jwt,
+    process.env.LOSTFINDER_SECRET,
+    function (err, verifiedJwt) {
+      verifiedJwt ? (userEmail = verifiedJwt.userEmail) : userEmail;
+      res.render("home", { userObject: userEmail });
+    }
+  );
 });
 
 app.get("/home", (req, res) => {
   let userEmail = ", you are not logged in.";
   var auth;
-  jwt.verify(req.cookies.jwt, "TOP_SECRET", function (err, verifiedJwt) {
-    verifiedJwt
-      ? ((userEmail = verifiedJwt.userEmail), (auth = true))
-      : (userEmail, (auth = false));
-    //res.render('home',{userObject:userEmail})
-    let userObject = { userEmail, auth };
-    res.json(userObject);
-  });
+  jwt.verify(
+    req.cookies.jwt,
+    process.env.LOSTFINDER_SECRET,
+    function (err, verifiedJwt) {
+      verifiedJwt
+        ? ((userEmail = verifiedJwt.userEmail), (auth = true))
+        : (userEmail, (auth = false));
+      //res.render('home',{userObject:userEmail})
+      let userObject = { userEmail, auth };
+      res.json(userObject);
+    }
+  );
 });
 
 app.get("/signout", (req, res) => {
@@ -489,11 +503,15 @@ app.post("/reportitem", (req, res) => {
     req.body;
 
   token
-    ? jwt.verify(token, "TOP_SECRET", function (err, verifiedJwt) {
-        verifiedJwt
-          ? (reporter = verifiedJwt.userEmail)
-          : res.json({ message: "you must log in to report items", id: "3" });
-      })
+    ? jwt.verify(
+        token,
+        process.env.LOSTFINDER_SECRET,
+        function (err, verifiedJwt) {
+          verifiedJwt
+            ? (reporter = verifiedJwt.userEmail)
+            : res.json({ message: "you must log in to report items", id: "3" });
+        }
+      )
     : res.json({ message: "you have to log in to report items", id: "3" });
 
   const newItem = new Item({
