@@ -13,14 +13,10 @@ const nodemailer = require("nodemailer");
 const mail = require("./mailsender");
 
 const whitelist = ["https://lostfinder.com.ng", "http://exam*ple2.com"];
-const req_origin = req.headers.origin;
-const req_host = req.headers.host;
-const req_ref = req.headers.referer;
-const req_location = req.headers.location;
-const req_add = req.socket.remoteAddress;
+
 const corsOptions = {
   origin: function (origin, callback) {
-    console.log({ req_origin });
+    //console.log({ req_origin });
     if (whitelist.indexOf(origin) !== -1) {
       console.log("allow this origin ", origin);
       return true;
