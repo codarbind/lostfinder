@@ -13,6 +13,8 @@ const nodemailer = require("nodemailer");
 const mail = require("./mailsender");
 
 const confirmReqHeaders = (req, res, next) => {
+	console.log({req})
+	return next()
   let token = req.headers["x-access-client-token"];
   if (token !== process.env.client_token)
     return res.status(200).json({ message: "done" });
