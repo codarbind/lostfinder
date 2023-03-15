@@ -419,6 +419,7 @@ app.get("/auth", (req, res) => {
 });
 
 app.post("/confirmtoken", (req, res) => {
+  console.log({ req });
   let { token } = req.body;
   let verifiedJwt = confirmtoken(token);
   if (!verifiedJwt)
