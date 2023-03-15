@@ -12,58 +12,6 @@ const axios = require("axios");
 const nodemailer = require("nodemailer");
 const mail = require("./mailsender");
 
-const confirmReqHeaders = (req, res, next) => {
-	console.log({req})
-	//return next()
-  //let token = req.headers["x-access-client-token"];
-  //if (token !== process.env.client_token)
-   // return res.status(200).json({ message: "done" });
-  //return next();
-};
-
-const whitelist = ["https://www.lostfinder.com.ng"];
-corsOptionsDelegate = function (req, callback) {
-  let corsOptions;
-  const req_origin = req.headers.origin;
-  const req_host = req.headers.host;
-  const req_ref = req.headers.referer;
-  const req_location = req.headers.location;
-  const req_add = req.socket.remoteAddress;
-  const req_ip = req.ip;
-  const req_url = req.url;
-  console.log({
-    req_add,
-    req_host,
-    req_location,
-    req_origin,
-    req_ref,
-    req_ip,
-    req_url,
-  });
-
-  if (whitelist.indexOf(req_origin) !== -1) {
-    console.log("I can allow this origin ", req_origin);
-    corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
-  } else {
-    console.log("I allow this origin ", req_origin);
-    corsOptions = { origin: false }; // disable CORS for this request
-  }
-  callback(null, corsOptions); // callback expects two parameters: error and options
-};
-const corsOptions = {
-  origin: function (origin, callback) {
-    //console.log({ req_origin });
-    console.log({ origin, indexof: whitelist.indexOf(origin) });
-    if (whitelist.indexOf(origin) !== -1) {
-      console.log("allow this origin ", origin);
-      return true;
-    } else {
-      console.log("cannot allow this origin ", origin);
-      return false;
-    }
-  },
-};
-//cors(corsOptions);
 const db = mongoose.connect(process.env.LOSTFINDER_MONGO_DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -107,18 +55,37 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("html"));
-//app.use(confirmReqHeaders);
-//app.use(cors(corsOptionsDelegate));
-//app.use(cors(corsOptions));
+app.use(cors({ origin: true, credentials: true }));
+
+let confirmHeaders = (req, res, next) => {
+  const client_token = req.headers["x-client-access-token"];
+  console.log({ client_token });
+  if (!client_token) {
+    console.log("turning kcab");
+    return res.status(200).json({ message: "ok", success: true });
+  }
+  let validClientToken;
+  try {
+    console.log("kiop");
+    validClientToken = jwt.verify(client_token, process.env.client_secret, {
+      //algorithms: "HS256",
+    }).signature;
+    console.log({ validClientToken });
+  } catch (error) {
+    console.log({ error });
+    return res.status(200).json({ message: "ok", success: true });
+  }
+  if (!validClientToken)
+    return res.status(200).json({ message: "ok", success: true });
+  return next();
+};
+
+//app.use(confirmHeaders);
 
 function confirmtoken(token) {
-  return jwt.verify(
-    token,
-    process.env.LOSTFINDER_SECRET,
-    function (err, verifiedJwt) {
-      return verifiedJwt;
-    }
-  );
+  return jwt.verify(token, "TOP_SECRET", function (err, verifiedJwt) {
+    return verifiedJwt;
+  });
 }
 
 function confirmEmail(email) {
@@ -177,7 +144,7 @@ function generateRandomIdentifier() {
   //generate jwt for the randomIdentifier
   jwtisedRandomNumber = jwt.sign(
     { randomNumber },
-    process.env.LOSTFINDER_SECRET,
+    "TOP_SECRET",
     { expiresIn: 5 * 24 * 60 * 60 } //5days
   );
   //slice out the encoded payload
@@ -189,24 +156,25 @@ function generateRandomIdentifier() {
 
 app.get("/", (req, res) => {
   let userEmail = ", you are not logged in.";
-  jwt.verify(
-    req.cookies.jwt,
-    process.env.LOSTFINDER_SECRET,
-    function (err, verifiedJwt) {
-      verifiedJwt ? (userEmail = verifiedJwt.logEmail) : userEmail;
-      res.redirect("home");
-    }
-  );
+  jwt.verify(req.cookies.jwt, "TOP_SECRET", function (err, verifiedJwt) {
+    verifiedJwt ? (userEmail = verifiedJwt.logEmail) : userEmail;
+    res.redirect("home");
+  });
 });
 
 app.post("/login", (req, res) => {
   let { logEmail, logPassword } = req.body;
-  console.log({ logEmail, logPassword });
 
   User.find(
     { userEmail: logEmail },
     { userPassword: 1, firstName: 1 },
     function (err, docs) {
+      if (err) {
+        console.log({ err });
+        return res
+          .status(500)
+          .json({ message: "something went wrong", data: {}, success: false });
+      }
       if (docs[0] === undefined) {
         console.log("this is the error while fetching " + err);
         res.status(200).json({
@@ -229,7 +197,7 @@ app.post("/login", (req, res) => {
           if (result) {
             const token = jwt.sign(
               { userEmail: logEmail, firstName },
-              process.env.LOSTFINDER_SECRET,
+              "TOP_SECRET",
               { expiresIn: 5 * 24 * 60 * 60 }
             );
 
@@ -262,7 +230,6 @@ app.post("/login", (req, res) => {
 
 app.post("/signup", (req, res) => {
   let { firstName, lastName, userEmail } = req.body;
-  console.log({ firstName, lastName, userEmail });
   let userPassword = null;
 
   if (userEmail) {
@@ -380,7 +347,7 @@ app.post("/pass/setpassword", (req, res) => {
                 let { userEmail, firstName } = doc[0];
                 const token = jwt.sign(
                   { userEmail, firstName },
-                  process.env.LOSTFINDER_SECRET,
+                  "TOP_SECRET",
                   { expiresIn: 5 * 24 * 60 * 60 } //5days
                 );
                 let cookJwt = res.cookie("jwt", token, {
@@ -422,32 +389,23 @@ app.post("/pass/setpassword", (req, res) => {
 
 app.post("/home", (req, res) => {
   let userEmail = ", you are not logged in.";
-  jwt.verify(
-    req.cookies.jwt,
-    process.env.LOSTFINDER_SECRET,
-    function (err, verifiedJwt) {
-      verifiedJwt ? (userEmail = verifiedJwt.userEmail) : userEmail;
-      res.render("home", { userObject: userEmail });
-    }
-  );
+  jwt.verify(req.cookies.jwt, "TOP_SECRET", function (err, verifiedJwt) {
+    verifiedJwt ? (userEmail = verifiedJwt.userEmail) : userEmail;
+    res.render("home", { userObject: userEmail });
+  });
 });
 
-app.get("/home", cors({ origin: "kio.mkk" }), (req, res) => {
-  console.log("hu jio p");
+app.get("/home", (req, res) => {
   let userEmail = ", you are not logged in.";
   var auth;
-  jwt.verify(
-    req.cookies.jwt,
-    process.env.LOSTFINDER_SECRET,
-    function (err, verifiedJwt) {
-      verifiedJwt
-        ? ((userEmail = verifiedJwt.userEmail), (auth = true))
-        : (userEmail, (auth = false));
-      //res.render('home',{userObject:userEmail})
-      let userObject = { userEmail, auth };
-      res.json(userObject);
-    }
-  );
+  jwt.verify(req.cookies.jwt, "TOP_SECRET", function (err, verifiedJwt) {
+    verifiedJwt
+      ? ((userEmail = verifiedJwt.userEmail), (auth = true))
+      : (userEmail, (auth = false));
+    //res.render('home',{userObject:userEmail})
+    let userObject = { userEmail, auth };
+    res.json(userObject);
+  });
 });
 
 app.get("/signout", (req, res) => {
@@ -463,11 +421,17 @@ app.get("/auth", (req, res) => {
 app.post("/confirmtoken", (req, res) => {
   let { token } = req.body;
   let verifiedJwt = confirmtoken(token);
+  if (!verifiedJwt)
+    return res.status(404).json({
+      message: "need to login",
+      success: false,
+      data: {},
+      auth: false,
+      verifiedJwt,
+    });
   let { userEmail } = verifiedJwt;
 
-  verifiedJwt
-    ? res.json({ verifiedJwt, userEmail, auth: true })
-    : res.json({ auth: false, verifiedJwt });
+  return res.status(200).json({ verifiedJwt, userEmail, auth: true });
 });
 
 app.get("/test", (req, res) => {
@@ -544,15 +508,11 @@ app.post("/reportitem", (req, res) => {
     req.body;
 
   token
-    ? jwt.verify(
-        token,
-        process.env.LOSTFINDER_SECRET,
-        function (err, verifiedJwt) {
-          verifiedJwt
-            ? (reporter = verifiedJwt.userEmail)
-            : res.json({ message: "you must log in to report items", id: "3" });
-        }
-      )
+    ? jwt.verify(token, "TOP_SECRET", function (err, verifiedJwt) {
+        verifiedJwt
+          ? (reporter = verifiedJwt.userEmail)
+          : res.json({ message: "you must log in to report items", id: "3" });
+      })
     : res.json({ message: "you have to log in to report items", id: "3" });
 
   const newItem = new Item({
