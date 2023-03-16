@@ -52,4 +52,5 @@
   },
   "postinstall": "npm start",
   "ignore-engines": "true"
+
 }
