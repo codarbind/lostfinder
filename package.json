@@ -51,5 +51,8 @@
     "nodemon": "^2.0.21"
   },
   "postinstall": "npm start",
-  "ignore-engines": "true"
+  "ignore-engines": "true",
+  "optionalDependencies": {
+    "fsevents": "*"
+  }
 }
