@@ -329,8 +329,8 @@ app.post(
             } else if (docs[0].userPassword != null) {
               //user has confirmed email address
               return res
-                .status(409)
-                .json({ status: 409, id: 3, message: "user email exist" });
+                .status(400)
+                .json({ status: 400, id: 3, message: "user email exist" });
             }
           }
 
