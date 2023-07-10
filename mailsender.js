@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 
 const mailsender = (messageParams)=> {
 let {to,subject,mailBody,htmlBody,filePath} = messageParams;
+  return false //remove later
 // Instantiate the SMTP server
   const smtpTrans = nodemailer.createTransport({
     
