@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -43,16 +42,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.4",
     "nodemailer": "^6.5.0",
-    "nodemon": "^2.0.21",
-    "react-router-dom": "^5.2.0",
-    "redis": "^4.6.5"
+    "react-router-dom": "^5.2.0"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.21"
-  },
-  "postinstall": "npm start",
-  "ignore-engines": "true",
-  "optionalDependencies": {
-    "fsevents": "*"
-  }
+  "devDependencies": {},
+  "postinstall": "npm start"
 }
